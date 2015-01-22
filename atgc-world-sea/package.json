@@ -1,0 +1,26 @@
+{
+  "name": "atgc-world-sea",
+  "version": "0.0.0",
+  "description": "Default killing zone",
+  "gunfire":{
+    "config":{
+      "color": [0, 0, 0],
+      "width": 10000,
+      "height": 10000,
+      "worldWidth": 128,
+      "worldHeight": 128,
+      "waterLevel": -200,
+      "waveSpeedMin": 5,
+      "waveSpeedFactor": 6,
+      "waveDepthMin": 5,
+      "waveDepthFactor": 10,
+      "waterColorHSL": [0.42, 0.97, 0.80],
+      "waterOpacity": 0.7,
+      "widthSegments": 250,
+      "heightSegments": 250,
+      "depth": 1500,
+      "param": 4,
+      "filterparam": 1
+    }
+  }
+}
