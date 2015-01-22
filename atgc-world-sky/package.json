@@ -1,0 +1,59 @@
+{
+  "name": "atgc-world-sky",
+  "version": "0.0.0",
+  "description": "Sun and moon light, fog",
+  "gunfire":{
+    "config": {
+      "radius": 100,
+      "segmentsWidth": 20,
+      "segmentsHeight": 20,
+
+      "hemiLightAltitude": 500,
+      "hemiLightIntensity" : 0.6,
+
+      "__palette_turquoise": [ 0.48333, 0.67, 0.71 ],
+      "__palette_yellow": [ 0.102777, 0.73, 0.85 ],
+      "__palette_greenish": [ 0.188888, 0.26, 0.77 ],
+      "__palette_sand": [ 0.14444, 0.66, 0.67 ],
+      "__palette_greenier": [ 0.47222, 0.52, 0.65 ],
+      "__palette_ground_light": [ 0.0694444, 0.21, 0.71 ],
+      "__palette_ground_medium": [ 0.0638888, 0.20, 0.61 ],
+      "__palette_ground_dark": [ 0.052777, 0.13, 0.52 ],
+      "__palette_ground_darker": [ 0.07777777, 0.16, 0.38 ],
+      "__palette_ground_darkest": [ 0.0583333, 0.11, 0.35 ],
+
+      "hemiLightSkyColorHSL":  [ 0.0694444, 0.21, 0.71 ],
+      "hemiLightGroundColorHSL" : [ 0.14444, 0.66, 0.67 ],
+
+      "__OLD_hemiLightSkyColorHSL": [ 0.9, 1, 0.2 ],
+      "__OLD_hemiLightGroundColorHSL" : [  0.895, 1, 0.75 ],
+
+      "spotLightColorHSL": [0.1, 0, 1.0],
+      "spotLightShadowDarkness":  0.5,
+      "spotLightShadowBias": -0.001,
+      "spotLightDistance": 1,
+      "spotLightIntensity": 10000,
+
+      "fogDensity": 0.3,
+      "fogColorHSL": [ 0.48333, 0.0, 0.71 ],
+      "__OLD_fogColorHSL": [ 0.48, 1, 0.2 ],
+
+      "fogNear": 1,
+      "fogFar": 10000,
+      "temperature": 23,
+      "humidity": 0.50,
+      "wind": 0,
+
+
+
+      "turbidity": 10,
+      "reileigh": 2,
+      "mieCoefficient": 0.005,
+      "mieDirectionalG": 0.8,
+      "luminance": 1,
+      "inclination": 0.49,
+      "azimuth": 0.25,
+      "distance": 400000
+    }
+  }
+}
