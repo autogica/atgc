@@ -1,0 +1,17 @@
+{
+  "name": "atgc-core-player",
+  "version": "0.0.0",
+  "description": "The current player",
+  "gunfire":{
+    "config":{
+      "name": "Julian",
+      "faction": "blue",
+      "controls": {
+        "walk": {
+          "movementSpeed": 1000,
+          "lookSpeed":  0.1
+        }
+      }
+    }
+  }
+}
