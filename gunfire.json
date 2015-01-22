@@ -1,0 +1,164 @@
+{
+  "assetsDir" : ".",
+  "publicDir" : "public",
+  "serverPort": 9972,
+  "assets": {
+
+    "atgc-bundle-crawler":  {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-bundle-dome":  {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-bundle-jet":  {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-bundle-molly":  {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-bundle-quadcopter":  {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-bundle-satcom":  {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-bundle-satellite":  {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-bundle-tank":  {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-bundle-walker":  {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-bundle-windturbine":  {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-core-astropolitics": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-core-entity": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-core-music": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-core-net-broadcast": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-core-net-browser": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-core-physics": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-core-player": {
+      "version": "*",
+      "enabled": true
+    },
+    "atgc-part-com-antenna": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-com-speech": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-core-battery": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-core-body": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-core-battery": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-core-leg": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-core-solar": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-factory-assembler": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-factory-printer": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-tactical-cloak": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-tactical-gauntlet": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-tactical-grave": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-tactical-heat": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-tactical-hornet": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-tactical-javelot": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-tactical-storm": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-tactical-sword": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-part-tactical-time": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-world-ground": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-world-sea": {
+      "version": "*",
+      "enabled": true
+    },
+    "atgc-world-star": {
+      "version": "*",
+      "enabled": false
+    },
+    "atgc-world-atmosphere": {
+      "version": "*",
+      "enabled": false
+    }
+  }
+}
