@@ -23,9 +23,9 @@ Never work directly in develop or master. Never, ever, ever.
     $ git checkout -b atgc-NAME-OF-MY-NEW-MODULE
     $ git pull . atgc-NAME-OF-DEPENDENCY-1
     $ git pull . atgc-NAME-OF-DEPENDENCY-N etc..
-   $ git push origin atgc-NAME-OF-MY-NEW-MODULE
+    $ git push origin atgc-NAME-OF-MY-NEW-MODULE
 
 This way, each branch is uncluttered by the development of others.
-From time to time, the `base` branch will be updated for readme update etc..
+From time to time, the `base` branch will be updated for global things like README.md edits etc..
 
 
