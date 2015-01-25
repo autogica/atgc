@@ -5,17 +5,17 @@ DefaultControls = (shortcuts) ->
 
   mouseDown: (left, middle, right) ->
     btns = {left, middle, right}
-    console.log "pressed " + JSON.stringify btns
+    console.log "atgc-core-player: pressed " + JSON.stringify btns
 
   mouseUp: (duration, left, middle, right) ->
     btns = {left, middle, right}
-    console.log "released " + JSON.stringify(btns) + "(after #{duration}ms)"
+    console.log "atgc-core-player: released " + JSON.stringify(btns) + "(after #{duration}ms)"
 
   mouseMove: (mouseX, mouseY, previousX, previousY, deltaX, deltaY, deltaAbs, raycaster) ->
-    console.log "mouse moved"
+    console.log "atgc-core-player: mouse moved"
 
   release: (shortcuts) ->
-    console.log "releasing default controls"
+    console.log "atgc-core-player: releasing default controls"
     shortcuts.reset()
 
 
@@ -34,14 +34,14 @@ class module.exports
     conf
 
   mouseDownListener: (evt) =>
-    console.log "mouseDown", evt
+    console.log "atgc-core-player: mouseDown", evt
     btn = @_BUTTONS[evt.button.toString()]
-    console.log "btn: ", btn
+    console.log "atgc-core-player: btn: ", btn
     @controls.elapsed[btn] = + new Date()
     @controls.mouseDown((evt.button == 0), (evt.button == 1), (evt.button == 2))
 
   mouseUpListener: (evt) =>
-    console.log "mouseUp", evt
+    console.log "atgc-core-player: mouseUp", evt
     btn = @_BUTTONS[evt.button.toString()]
     now = + new Date()
     elapsed = now - (@controls.elapsed[btn] ? now)
@@ -92,7 +92,7 @@ class module.exports
     if isString tool
       tool = app.assets[tool]
       unless tool?
-        console.log "tool #{tool} does not exist."
+        console.log "atgc-core-player: tool #{tool} does not exist."
         return
 
     # it is possible that .use() is called before shortcut object is initialized
