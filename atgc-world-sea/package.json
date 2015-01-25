@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "Default killing zone",
   "gunfire":{
-    "config":{
+    "clientSettings":{
       "color": [0, 0, 0],
       "width": 10000,
       "height": 10000,

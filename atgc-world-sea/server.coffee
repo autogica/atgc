@@ -5,4 +5,4 @@ class module.exports
 
   getClient: -> @asset.client
 
-  getGenome: -> @asset.genome
+  getClientSettings: -> @asset.clientSettings
