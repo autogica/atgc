@@ -2,9 +2,8 @@
   "name": "atgc-world-ground",
   "version": "0.0.0",
   "description": "Default terrain",
-  "enabled": true,
   "gunfire":{
-    "config":{
+    "clientSettings":{
        "width": 22000,
        "height": 22000,
        "iterations": 4,
