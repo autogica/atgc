@@ -8,5 +8,5 @@ class module.exports
   getClient: (position) ->
     @asset.client
 
-  getGenome: ->
-    @asset.genome
+  getClientSettings: ->
+    @asset.clientSettings

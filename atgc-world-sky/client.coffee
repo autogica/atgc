@@ -146,7 +146,7 @@ class module.exports
       @addLight 0.55, 0.9, 0.5, 5000, 0, -1000
 
       # texture used for clouds
-      @textureCloud = THREE.ImageUtils.loadTexture 'cloud10.png'
+      @textureCloud = THREE.ImageUtils.loadTexture 'textures/cloud10.png'
       @textureCloud.magFilter = THREE.LinearMipMapLinearFilter
       @textureCloud.minFilter = THREE.LinearMipMapLinearFilter
 
