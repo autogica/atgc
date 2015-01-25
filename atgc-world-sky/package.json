@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "Sun and moon light, fog",
   "gunfire":{
-    "config": {
+    "clientSettings": {
       "radius": 100,
       "segmentsWidth": 20,
       "segmentsHeight": 20,
