@@ -1,0 +1,13 @@
+{
+  "name": "atgc-core-energy",
+  "version": "0.0.0",
+  "description": "manage energy flow through the simulation",
+  "gunfire":{
+    "serverSettings":{
+
+    },
+    "clientSettings":{
+      "initialLevelOfEnergy": 10
+    }
+  }
+}
