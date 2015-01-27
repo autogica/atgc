@@ -93,6 +93,12 @@ class module.exports
 
       @world	= new OIMO.World timeStep, broadPhaseType, iterations
 
+      # Oimo Physics use international system units 0.1 to 10 meters max for dynamique body.
+      # In demo with three.js, i scale all by 100 so object is between 10 to 10000 three unit.
+      # You can change world scale.
+      # for three : world.worldscale(100);
+      @world.worldscale 100
+
       # override settings
       @world.gravity = new OIMO.Vec3(0, gravityY, 0)
 
