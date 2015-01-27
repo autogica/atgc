@@ -1,0 +1,11 @@
+{
+  "name": "atgc-part-skin",
+  "version": "0.0.0",
+  "description": "a skin module",
+  "gunfire":{
+    "clientSettings":{
+      "capacity": 1000000000,
+      "throughput_sec" : 10000
+    }
+  }
+}
