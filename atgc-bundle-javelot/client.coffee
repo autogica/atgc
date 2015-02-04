@@ -73,7 +73,7 @@ class module.exports
         if obj?
           obj.rebuild()
 
-      app.assets['atgc-core-player'].use @
+      app.assets['atgc-core-player']?.use? @
 
 
   ###
@@ -241,7 +241,7 @@ class module.exports
           console.log "j pressed"
         on_keyup: (e) ->
           console.log "you released j, we fire something"
-          window.app.assets['atgc-bundle-javelot'].launch()
+          window.app.assets['atgc-bundle-javelot']?.build?()
           # Normally because we have a keyup event handler,
           # event.preventDefault() would automatically be called.
           # But because we're returning true in this handler,
@@ -282,8 +282,8 @@ class module.exports
       console.log "released " + JSON.stringify(btns) + "(after #{duration}ms)"
 
       # TODO use some specific "target locked" guidance control code
-      if @app.assets['atgc-core-player']?
-        javelot = @build @app.assets['atgc-core-player'].get()
+      if @app.assets['atgc-core-player']?.get?
+        javelot = @build window.app.assets['atgc-core-player'].get()
         javelot.run()
         console.log "launched javelot"
 
