@@ -1,0 +1,22 @@
+{
+  "name": "atgc-bundle-jet",
+  "version": "0.0.0",
+  "description": "The Jet",
+  "gunfire":{
+    "clientSettings":{
+
+      "sizeX": 4000,
+      "sizeY": 4000,
+      "sizeZ": 4000,
+      "scale": 2,
+
+      "lookAt": "star",
+
+      "radiusTop": 0,
+      "radiusBottom": 10,
+      "height": 100,
+      "segmentsRadius": 3,
+      "segmentsHeight": 2
+    }
+  }
+}
