@@ -139,7 +139,7 @@ class module.exports
   get: (id) ->
     unless id?
       throw "cannot update entity's energy level: invalid entity id"
-0
+
     account = @accounts[id]
     unless account?
       account = @accounts[id] = energy: 0
