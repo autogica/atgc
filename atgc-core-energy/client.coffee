@@ -1,7 +1,7 @@
 
 
 ###
-Manages all the jets at the same time
+Manages the energy in the scene
 ###
 class module.exports
 
@@ -18,64 +18,46 @@ class module.exports
 
   remove: (obj) ->
 
-  ###
-  Update jets
-  ###
   render: ->
 
 
-  build: ->
+  ###
+  transfer energy from one unit to another
+  energy transfers are unidirectional because it's easier
+  to understand, log and trace errors.
+  if you want to transfer from target to source, you have to
+  do it manually
+  ###
+  transfer: (source, target, joules, onComplete) ->
+    joules = Math.abs joules
 
-  # Returns options to build a segment
-  #
-  # Options are spline points etc..
-  #
-  getBuildOptions: ->
-    splinePoints:
-      type: "new THREE.Vector3"
-      args: 3
+    @_update source, -joules, (newEnergyLevelForSource) ->
+      @_update source, +joules, (newEnergyLevelForTarget) ->
+        console.log "atgc-core-energy: transfered #{joules} from #{source.id} (now #{newEnergyLevelForSource}J) to #{target.id} (now #{newEnergyLevelForTarget}J)"
+        onComplete joules
 
-  # Returns build price
-  #
-  #
-  getBuildPrice: (opts, cb) ->
-    # price depends upon:
-    # - volume
-    # - material properties (weight, rigidity..)
+  get: (id) ->
+    unless id?
+      throw "cannot update entity's energy level: invalid entity id"
 
-  #
-  # Build part. the account will be debited.
-  #
-  buildPart: (account, opts, cb) ->
+    account = @accounts[id]
+    unless account?
+      account = @accounts[id] = energy: 0
 
-    splinePoints = for args in opts.splinePoints
-      new THREE.Vector3 args[0], args[1], args[2]
+    return account.energy
 
-    pipeSpline = new THREE.SplineCurve3 splinePoints
+        # do th
+  test: (onComplete) ->
 
+    foo = "atgc-core-energy/tests/test1/foo"
 
-    cb
-      splinePoints: splinePoints
-      pipeSpline: pipeSpline
+    bar = "atgc-core-energy/tests/test1/bar"
 
-    return
-
-  # called at loading. Tests should not impact production,
-  # and clean after themselves
-  test: ->
-
-    testOpts =
-      splinePoints: [
-        [0, 10, -10]
-        [10, 0, -10]
-        [20, 0, 0]
-        [30, 0, 10]
-        [30, 0, 20]
-        [20, 0, 30]
-        [10, 0, 30]
-        [0, 0, 30]
-      ]
-
-    console.log "calling buildPart with these options:", testOpts
-    @buildPart testOpts, (result) ->
-      console.log "result from buildPart: ", result
+    @transfer @root, foo, 10.kJ, =>
+      @transfer @root, bar, 20.kJ, =>
+        @transfer foo, bar, 5.kj, =>
+          fooJ = @get foo
+          barJ = @get bar
+          unless fooJ is barJ
+            throw "test failed"
+          console.log "test passed: #{fooJ} equals #{barJ}"
