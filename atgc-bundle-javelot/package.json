@@ -1,0 +1,23 @@
+{
+  "name": "atgc-bundle-javelot",
+  "version": "0.0.0",
+  "description": "JAVELOT: a rocket fired by jet. Needs to be first locked by pressing the mouse for 2 seconds",
+  "gunfire":{
+    "clientSettings":{
+      "sizeX": 4000,
+      "sizeY": 4000,
+      "sizeZ": 4000,
+      "scale": 0.5,
+
+      "accelDuration": 2000,
+      "cruiseSpeed": 30,
+      "cruiseDuration": 4000,
+
+      "radiusTop": 0,
+      "radiusBottom": 10,
+      "height": 100,
+      "segmentsRadius": 8,
+      "segmentsHeight": 4
+    }
+  }
+}
