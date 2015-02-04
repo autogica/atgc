@@ -64,8 +64,8 @@ class module.exports
 
     vector = new THREE.Vector3 mouseXnorm, mouseYnorm, app.camera.near
     # Convert the [-1, 1] screen coordinate into a world coordinate on the near plane
-    projector = new THREE.Projector()
-    projector.unprojectVector( vector, app.camera )
+    # projector = new THREE.Projector() # not used anymore?
+    vector.unproject( app.camera )
     raycaster = new THREE.Raycaster( app.camera.position, vector.sub( app.camera.position ).normalize() )
 
     @controls.mouseMove mouseX, mouseY, previousX, previousY, deltaX, deltaY, deltaAbs, raycaster
