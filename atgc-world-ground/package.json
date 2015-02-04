@@ -2,34 +2,34 @@
   "name": "atgc-world-ground",
   "version": "0.0.0",
   "description": "Default terrain",
-  "gunfire":{
-    "clientSettings":{
-       "width": 22000,
-       "height": 22000,
-       "iterations": 4,
+  "gunfire": {
+    "clientSettings": {
+      "width": 22000,
+      "height": 22000,
+      "iterations": 4,
 
-       "worldWidth": 256,
-       "worldHeight": 256,
+      "worldWidth": 256,
+      "worldHeight": 256,
 
-       "amplitude": 120,
-       "qualityA": 1,
-       "qualityB": 1.75,
-       "qualityC": 5,
+      "amplitude": 120,
+      "qualityA": 1,
+      "qualityB": 1.75,
+      "qualityC": 5,
 
-       "altitude": -400,
+      "altitude": -400,
 
-        "__palette_ground_light": [ 0.0694444, 0.21, 0.71 ],
-        "__palette_ground_medium": [ 0.0638888, 0.20, 0.61 ],
-        "__palette_ground_dark": [ 0.052777, 0.13, 0.52 ],
-        "__palette_ground_darker": [ 0.07777777, 0.16, 0.38 ],
-        "__palette_ground_darkest": [ 0.0583333, 0.11, 0.35 ],
+      "__palette_ground_light": [0.0694444, 0.21, 0.71],
+      "__palette_ground_medium": [0.0638888, 0.20, 0.61],
+      "__palette_ground_dark": [0.052777, 0.13, 0.52],
+      "__palette_ground_darker": [0.07777777, 0.16, 0.38],
+      "__palette_ground_darkest": [0.0583333, 0.11, 0.35],
 
-      "groundColorHSL": [ 0.0694444, 0.21, 0.71 ],
-       "__OLD_groundColorHSL": [0.11, 0.29, 0.68],
-       "groundColorAmbientHSL": [0.0, 0.0, 1.0],
-       "groundColorSpecularHSL": [ 0.0694444, 0.21, 0.71 ],
-       "__old__groundColorSpecularHSL": [0.0444, 0.16, 0.82],
-       "groundColorShininessHSL": [0, 1.0, 0.33]
-     }
+      "groundColorHSL": [0.0694444, 0.21, 0.71],
+      "__OLD_groundColorHSL": [0.11, 0.29, 0.68],
+      "groundColorAmbientHSL": [0.0, 0.0, 1.0],
+      "groundColorSpecularHSL": [0.0694444, 0.21, 0.71],
+      "__old__groundColorSpecularHSL": [0.0444, 0.16, 0.82],
+      "groundColorShininessHSL": [0, 1.0, 0.33]
+    }
   }
 }
