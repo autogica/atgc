@@ -65,8 +65,7 @@ class module.exports
 
       #importScripts opts.scripts.threejs
 
-      #geometry = new THREE.PlaneBufferGeometry(
-      geometry = new THREE.PlaneGeometry(
+      geometry = new THREE.PlaneBufferGeometry(
         opts.width,
         opts.height,
         opts.worldWidth - 1,
@@ -133,14 +132,7 @@ class module.exports
           groundColorShininess = new THREE.Color()
           groundColorShininess.setHSL @conf.groundColorShininessH, @conf.groundColorShininessS, @conf.groundColorShininessL
 
-          # old version, should maybe removed
-          ___material = new THREE.MeshPhongMaterial
-            ambient: groundColorAmbient.getHex()
-            color: groundColor.getHex()
-            specular: groundColorSpecular.getHex()
-            shininess: groundColorShininess.getHex()
-            shading: THREE.FlatShading # always. To get the vectorial look
-            wireframe: no
+
           # if we have colors on the mesh, use this:
           # vertexColors: THREE.FaceColors
 
@@ -158,18 +150,12 @@ class module.exports
           @mesh.castShadow = yes
           @mesh.receiveShadow = yes
 
-          # bad way of moving things!! we only need to move the parent's root
-          # because we shouldn't have to touch to thousand of individual nodes
-          # (plus the implementation can change if we use or not the BufferGeometry version)
-          #for i in [0...@mesh.geometry.vertices.length]
-          #  vert = @mesh.geometry.vertices[i]
-          #  vert.y = terrain[i++] * 10
 
           @mesh.geometry.computeFaceNormals()
           @mesh.geometry.computeVertexNormals()
 
           @app.scene.add @mesh
 
-          @app.octree.add @mesh, useFaces: yes # for complex geometries, we need this?
+          #@app.octree.add @mesh, useFaces: yes # for complex geometries, we need this?
 
     @mesh?.position?.y = @conf.altitude
