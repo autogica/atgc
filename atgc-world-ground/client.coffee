@@ -65,7 +65,8 @@ class module.exports
 
       #importScripts opts.scripts.threejs
 
-      geometry = new THREE.PlaneBufferGeometry(
+      #geometry = new THREE.PlaneBufferGeometry(
+      geometry = new THREE.PlaneGeometry(
         opts.width,
         opts.height,
         opts.worldWidth - 1,
@@ -157,9 +158,12 @@ class module.exports
           @mesh.castShadow = yes
           @mesh.receiveShadow = yes
 
-          for i in [0...@mesh.geometry.vertices.length]
-            vert = @mesh.geometry.vertices[i]
-            vert.y = terrain[i++] * 10
+          # bad way of moving things!! we only need to move the parent's root
+          # because we shouldn't have to touch to thousand of individual nodes
+          # (plus the implementation can change if we use or not the BufferGeometry version)
+          #for i in [0...@mesh.geometry.vertices.length]
+          #  vert = @mesh.geometry.vertices[i]
+          #  vert.y = terrain[i++] * 10
 
           @mesh.geometry.computeFaceNormals()
           @mesh.geometry.computeVertexNormals()
