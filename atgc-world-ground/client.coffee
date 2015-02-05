@@ -132,7 +132,14 @@ class module.exports
           groundColorShininess = new THREE.Color()
           groundColorShininess.setHSL @conf.groundColorShininessH, @conf.groundColorShininessS, @conf.groundColorShininessL
 
-
+          # old version, should maybe removed
+          ___material = new THREE.MeshPhongMaterial
+            ambient: groundColorAmbient.getHex()
+            color: groundColor.getHex()
+            specular: groundColorSpecular.getHex()
+            shininess: groundColorShininess.getHex()
+            shading: THREE.FlatShading # always. To get the vectorial look
+            wireframe: no
           # if we have colors on the mesh, use this:
           # vertexColors: THREE.FaceColors
 
@@ -150,6 +157,9 @@ class module.exports
           @mesh.castShadow = yes
           @mesh.receiveShadow = yes
 
+          for i in [0...@mesh.geometry.vertices.length]
+            vert = @mesh.geometry.vertices[i]
+            vert.y = terrain[i++] * 10
 
           @mesh.geometry.computeFaceNormals()
           @mesh.geometry.computeVertexNormals()
