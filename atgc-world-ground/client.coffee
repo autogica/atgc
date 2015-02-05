@@ -65,7 +65,7 @@ class module.exports
 
       #importScripts opts.scripts.threejs
 
-      geometry = new THREE.PlaneGeometry(
+      geometry = new THREE.PlaneBufferGeometry(
         opts.width,
         opts.height,
         opts.worldWidth - 1,
