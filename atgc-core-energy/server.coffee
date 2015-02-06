@@ -1,19 +1,21 @@
 ###
 Decajoule
 ###
-Object.defineProperty Number.prototype, "daJ",
-  enumerable: no
-  configurable: no
-  get: -> @ * 10
+if !Number.prototype.daJ
+  Object.defineProperty Number.prototype, "daJ",
+    enumerable: no
+    configurable: no
+    get: -> @ * 10
 
 ###
 Hectojoule
 Order of magnitude: "3×102 J: kinetic energy of an average person jumping as high as they can" (Wikipedia)
 ###
-Object.defineProperty Number.prototype, "hJ",
-  enumerable: no
-  configurable: no
-  get: -> @ * 10 ** 2
+if !Number.prototype.hJ
+  Object.defineProperty Number.prototype, "hJ",
+    enumerable: no
+    configurable: no
+    get: -> @ * 10 ** 2
 
 ###
 Kilojoule
@@ -23,48 +25,53 @@ aluminum, requires approximately 10kJ" (Internet)
 " a successful HEL weapon will have to be able to deliver at least 5,000-10,000
 joules per square centimeter on the target." (Internet)
 ###
-Object.defineProperty Number.prototype, "kJ",
-  enumerable: no
-  configurable: no
-  get: -> @ * 10 ** 3
+if !Number.prototype.kJ
+  Object.defineProperty Number.prototype, "kJ",
+    enumerable: no
+    configurable: no
+    get: -> @ * 10 ** 3
 
 ###
 Megajoule
 ###
-Object.defineProperty Number.prototype, "MJ",
-  enumerable: no
-  configurable: no
-  get: -> @ * 10 ** 6
+if !Number.prototype.MJ
+  Object.defineProperty Number.prototype, "MJ",
+    enumerable: no
+    configurable: no
+    get: -> @ * 10 ** 6
 
 ###
 Gigajoule
 Order of magnitude: "6 GJ is about the amount of potential chemical energy in
 a barrel of oil, when combusted" (Wikipedia)
 ###
-Object.defineProperty Number.prototype, "GJ",
-  enumerable: no
-  configurable: no
-  get: -> @ * 10 ** 9
+if !Number.prototype.GJ
+  Object.defineProperty Number.prototype, "GJ",
+    enumerable: no
+    configurable: no
+    get: -> @ * 10 ** 9
 
 ###
 Terajoule
 Order of magnitude: "6.4×1012 J: energy contained in jet fuel in a
 Boeing 747-100B aircraft at max fuel capacity" (Wikipedia)
 ###
-Object.defineProperty Number.prototype, "TJ",
-  enumerable: no
-  configurable: no
-  get: -> @ * 10 ** 12
+if !Number.prototype.TJ
+  Object.defineProperty Number.prototype, "TJ",
+    enumerable: no
+    configurable: no
+    get: -> @ * 10 ** 12
 
 ###
 Petajoule
 Order of magnitude: "1×1015 J: yearly electricity consumption in Greenland as
 of 2008" (Wikipedia)
 ###
-Object.defineProperty Number.prototype, "PJ",
-  enumerable: no
-  configurable: no
-  get: -> @ * 10 ** 15
+if !Number.prototype.PJ
+  Object.defineProperty Number.prototype, "PJ",
+    enumerable: no
+    configurable: no
+    get: -> @ * 10 ** 15
 
 
 
