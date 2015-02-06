@@ -89,7 +89,7 @@ class module.exports
   # make the player use a tool
   use: (tool) ->
 
-    if isString tool
+    if typeof tool is 'string'
       tool = app.assets[tool]
       unless tool?
         console.log "atgc-core-player: tool #{tool} does not exist."
