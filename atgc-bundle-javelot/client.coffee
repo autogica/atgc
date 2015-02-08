@@ -178,9 +178,9 @@ class module.exports
               obj.mesh.lookAt jet.mesh.position
               # TODO emit event for jet, to tell he is attack?
             ###
-      after 3000, ->
-        console.log "atgc-part-tactical-javelot: self destruct activated after 3 seconds"
-        obj.destroy()
+      #after 3000, ->
+      #  console.log "atgc-part-tactical-javelot: self destruct activated after 3 seconds"
+      #  obj.destroy()
 
 
     # rebuild an existing object using a new geometry and all
@@ -215,6 +215,7 @@ class module.exports
 
     @app.scene.add obj.light
     @app.scene.add obj.mesh
+    THREE.SceneUtils.attach obj.light, @app.scene, obj.mesh
 
     @objects[obj.id] = obj
 
