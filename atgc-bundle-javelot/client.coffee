@@ -4,14 +4,15 @@ Manages all javelots
 
 after = (t, f) -> setTimeout f, t
 
+# class JavelotInstance
+
 class module.exports
 
   constructor: (old) ->
 
     # look for elements of previous asset
     if old?
-      @objects = old.objects ? {}
-      @counter = old.counter
+      @objects = old.objects
       @geometry = old.geometry
       @material = old.material
 
@@ -33,21 +34,9 @@ class module.exports
 
   update: (init) ->
     if init
-      @counter ?= 0
-      @objects ?= {}
-      # TODO javelot should looks like a good old-fashioned rocket
-      # uninstall previous geometry (warning: may break current flying objects)
-      #if @geometry?
-      #  @geometry.dispose()
 
-      # uninstall previous material (warning: may break current flying objects)
-      #if @material?
-      #  @material.dispose()
-
-      # create new geometry using new config
-      if @geometry?
-        @geometry.dispose()
-
+      # destroy former geometry and material
+      @geometry?.dispose?()
       @geometry = new THREE.CylinderGeometry(
         @conf.radiusTop,
         @conf.radiusBottom,
@@ -55,23 +44,28 @@ class module.exports
         @conf.segmentsRadius
       )
 
-
       @geometry.applyMatrix(
         new THREE.Matrix4().makeRotationFromEuler(
           new THREE.Euler(Math.PI / 2, Math.PI, 0)
         )
       )
 
-      if @material?
-        @material.dispose()
-
+      @material?.dispose?()
       @material = new THREE.MeshNormalMaterial()
 
-      # rebuild existing objects using new geometry and materials
-      for id in Object.keys @objects
-        obj = @objects[id]
-        if obj?
-          obj.rebuild()
+      @objects ?= []
+      if @objects.length is 0
+        @objects = for id in [0...1000]
+          mesh = new THREE.Mesh @geometry, @material
+          mesh.position.x = 0
+          mesh.position.y = 0
+          mesh.position.z = -10000
+          mesh.scale.x = mesh.scale.y = mesh.scale.z = @conf.scale
+          @app.scene.add mesh
+
+          id: id
+          mesh: mesh
+          isFree: yes
 
       app.assets['atgc-core-player']?.use? @
 
@@ -87,140 +81,79 @@ class module.exports
 
 
 
-  destroy: (id) ->
-    if id of @objects
-      obj = @objects[id]
-      if obj?
-        obj.destroy()
-      else
-        console.log "object already destroyed (but here this should never happen)"
-    else
-      throw "not found"
-
   empty: ->
-    # thanks to Object.keys we can iterate over the object while we are
-    # modifying it (deleting items)
-    for id of Object.keys @objects
-      obj = @objects[id]
-      if obj?
-        obj.destroy()
-      else
-        console.log "Javelot already self-destructed or exploded"
+    return
 
 
-  build: (owner) ->
-    console.log "building javelot.."
+  free: (obj) ->
+    console.log "asked to free ", obj
+    if typeof obj is 'undefined'
+      throw "NullPointerException: you tried to free an undefined reference"
+    if typeof obj is "string"
+      id = obj
+      console.log "atgc-bundle-javelot: asked to free object id #{id}"
+      for obj in @objects
+        if obj.id is id
+          if obj.isFree
+            console.log "atgc-bundle-javelot: object is already free"
+            return
+          obj.tween?.stop?()
+          obj.mesh?.position.z = -10000 # put back in the store
+          obj.isFree = yes
+          console.log "atgc-bundle-javelot: freed #{obj.id}"
+          break
+    else
+      if obj.isFree
+        console.log "atgc-bundle-javelot: object is already free"
+        return
 
-    obj =
-      id: @counter++
-
-    obj.mesh = new THREE.Mesh @geometry, @material
-
-    obj.mesh.position.copy app.camera.position
-    obj.mesh.quaternion.copy app.camera.quaternion
-
-    # TODO fix mesh orientation. This should be the camera's normal
-
-    obj.mesh.scale.x = obj.mesh.scale.y = obj.mesh.scale.z = @conf.scale
-
-    # it's cooler if rockets have lights, when we are in obcurity settings
-    # TODO maybe we should also add a sprite
-    obj.light = new THREE.SpotLight 0xffffff
-
-    obj.light.intensity = 1
-    obj.light.castShadow = yes
-
-    obj.light.shadowMapWidth = 32
-    obj.light.shadowMapHeight = 32
-    obj.light.shadowDarkness = 0.2
-    obj.light.shadowCameraNear = 40
-    obj.light.shadowCameraFar = 8000
-    obj.light.shadowCameraFov = 30
-    obj.light.shadowCameraVisible = yes
+      console.log "atgc-bundle-javelot: asked to free object #{obj.id}"
+      obj.tween?.stop?()
+      obj.mesh?.position.z = -10000 # put back in the store
+      obj.isFree = yes
+      console.log "atgc-bundle-javelot: freed #{obj.id}"
 
 
-    cruiseDuration = @conf.cruiseDuration
+
+  # 'this' is the Tween
+  onStopOrComplete: ->
+    app.assets['atgc-bundle-javelot']?.free? this.obj
+
+  build: ->
+    console.log "atgc-bundle-javelot: building javelot.."
+
+    # closure vars
+    cruiseDuration = 120000 # @conf.cruiseDuration
     cruiseSpeed = @conf.cruiseSpeed
     accelDuration = @conf.accelDuration
 
+    for obj in @objects
+      continue unless obj.isFree
+      continue unless obj.mesh?
 
-    obj.light.tween = new TWEEN.Tween({intensity: obj.light.intensity})
-      .to { intensity: 1.0 }, accelDuration
-      .easing TWEEN.Easing.Quadratic.InOut
-      .onUpdate ->
-        obj.light.intensity = @intensity
+      obj.isFree = no
 
-    obj.tween = new TWEEN.Tween({ zvel: 0 })
-      .to({ zvel: cruiseSpeed }, accelDuration)
-      .easing TWEEN.Easing.Quadratic.InOut
-      .onUpdate ->
-        obj.mesh.translateZ @zvel
-        # TODO add a slow Z axis rotation
-        # obj.mesh.rotation.z += z * Math.PI / 180
+      obj.mesh.position.copy app.camera.position
+      obj.mesh.quaternion.copy app.camera.quaternion
 
-      .chain new TWEEN.Tween({ foo: 0 })
-        .to({ bar: 1 }, cruiseDuration)
-        .onUpdate =>
-          obj.mesh.translateZ cruiseSpeed
+      # TODO fix mesh orientation. This should be the camera's normal
+      # TODO: maybe use a mutation on a "t" var to detect acceleration etc..
 
-          return unless @objects? # in case we are a zombie callback
+      obj.tween = new TWEEN.Tween({ obj: obj, zvel: 0, zrot: 1 })
+        .to({ obj: obj, zvel: cruiseSpeed, zrot: 360 }, cruiseDuration)
+        .easing TWEEN.Easing.Quadratic.InOut
+        .onUpdate ->
+          this.obj.mesh.translateZ Math.min this.zvel, cruiseSpeed
+          # UNTESTED if we want a "bullet-style" rotation
+          # this.obj.mesh.rotateZ Math.PI / this.zrot
 
-          for id in Object.keys @objects
-            jet = @objects[id]
-            ###
-            d = obj.mesh.position.distanceToSquared(jet.mesh.position)
-            if d < 500
-              console.log "BOOM"
-              obj.destroy()
-              jet.destroy()
-              break
-            if d < 100000
-              obj.mesh.lookAt jet.mesh.position
-              # TODO emit event for jet, to tell he is attack?
-            ###
-      #after 3000, ->
-      #  console.log "atgc-part-tactical-javelot: self destruct activated after 3 seconds"
-      #  obj.destroy()
+        .onStop @onStopOrComplete
+        .onComplete @onStopOrComplete
 
-
-    # rebuild an existing object using a new geometry and all
-    obj.rebuild = =>
-      @app.scene.remove obj.light
-      @app.scene.remove obj.mesh
-      newMesh = new THREE.Mesh @geometry, @material
-      newMesh.position.set obj.mesh.position.x, obj.mesh.position.y, obj.mesh.position.z
-      newMesh.scale.x = newMesh.scale.y = newMesh.scale.z = @conf.scale
-      obj.mesh = newMesh
-      @app.scene.add obj.light
-      @app.scene.add obj.mesh
-
-    obj.destroy = =>
-      console.log "destroying right now"
-      obj.tween.stop?()
-      obj.light.tween.stop?()
-
-      @app.scene.remove obj.light
-      @app.scene.remove obj.mesh
-      obj.light.tween = undefined
-      obj.light = undefined
-      obj.tween = undefined
-      obj.mesh = undefined
-      delete @objects[obj.id]
-      obj.id = undefined
-
-
-    obj.run = =>
-      obj.light.tween.start()
       obj.tween.start()
-
-    @app.scene.add obj.light
-    @app.scene.add obj.mesh
-    THREE.SceneUtils.attach obj.light, @app.scene, obj.mesh
-
-    @objects[obj.id] = obj
-
-    obj
-
+      console.log "atgc-bundle-javelot: fired object"
+      return
+    console.log "atgc-bundle-javelot: couldn't find a free slot"
 
 
   getControls: (shortcuts) ->
@@ -230,18 +163,18 @@ class module.exports
         keys : "shift s"
         is_exclusive: yes
         on_keydown: ->
-          console.log("You pressed shift and s together.")
+          console.log "atgc-bundle-javelot: You pressed shift and s together."
         on_keyup: (e) ->
-          console.log("And now you've released one of the keys.")
+          console.log "atgc-bundle-javelot: And now you've released one of the keys."
         "this": @
       },
       {
         keys: "j"
         is_exclusive: true
         on_keydown: ->
-          console.log "j pressed"
+          console.log "atgc-bundle-javelot: j pressed"
         on_keyup: (e) ->
-          console.log "you released j, we fire something"
+          console.log "atgc-bundle-javelot: you released j, we fire something"
           window.app.assets['atgc-bundle-javelot']?.build?()
           # Normally because we have a keyup event handler,
           # event.preventDefault() would automatically be called.
@@ -254,9 +187,9 @@ class module.exports
         keys: "b"
         is_exclusive: true
         on_keydown: ->
-          console.log "b pressed"
+          console.log "atgc-bundle-javelot: b pressed"
         on_keyup: (e) ->
-          console.log "you released b, we build a random building"
+          console.log "atgc-bundle-javelot: you released b, we build a random building"
 
           # Normally because we have a keyup event handler,
           # event.preventDefault() would automatically be called.
@@ -276,17 +209,17 @@ class module.exports
 
     mouseDown: (left, middle, right) =>
       btns = {left, middle, right}
-      console.log "pressed " + JSON.stringify btns
+      console.log "atgc-bundle-javelot: pressed " + JSON.stringify btns
 
     mouseUp: (duration, left, middle, right) =>
       btns = {left, middle, right}
-      console.log "released " + JSON.stringify(btns) + "(after #{duration}ms)"
+      console.log "atgc-bundle-javelot: released " + JSON.stringify(btns) + "(after #{duration}ms)"
 
       # TODO use some specific "target locked" guidance control code
       if @app.assets['atgc-core-player']?.get?
-        javelot = @build window.app.assets['atgc-core-player'].get()
+        javelot = @build window.app.assets['atgc-core-player']?.get?()
         javelot.run()
-        console.log "launched javelot"
+        console.log "atgc-bundle-javelot: launched javelot"
 
     mouseMove: (mouseX, mouseY, previousX, previousY, deltaX, deltaY, deltaAbs) ->
       #console.log "mouse moved from (#{previousX}, #{previousY}) to (#{mouseX}, #{mouseY}) delta: #{deltaAbs}"
