@@ -44,12 +44,6 @@ class module.exports
         @conf.segmentsRadius
       )
 
-      @geometry.applyMatrix(
-        new THREE.Matrix4().makeRotationFromEuler(
-          new THREE.Euler(Math.PI / 2, Math.PI, 0)
-        )
-      )
-
       @material?.dispose?()
       @material = new THREE.MeshNormalMaterial()
 
@@ -59,15 +53,17 @@ class module.exports
           mesh = new THREE.Mesh @geometry, @material
           mesh.position.x = 0
           mesh.position.y = 0
-          mesh.position.z = -10000
+          mesh.position.z = 0
           mesh.scale.x = mesh.scale.y = mesh.scale.z = @conf.scale
+          mesh.visible = no
           @app.scene.add mesh
 
           id: id
           mesh: mesh
           isFree: yes
 
-      app.assets['atgc-core-player']?.use? @
+      # perfectly bad example why we need an async library:
+      setTimeout((=> window.app.assets['atgc-core-player']?.use? window.app.assets['atgc-bundle-javelot']), 2000)
 
 
   ###
@@ -98,7 +94,7 @@ class module.exports
             console.log "atgc-bundle-javelot: object is already free"
             return
           obj.tween?.stop?()
-          obj.mesh?.position.z = -10000 # put back in the store
+          obj.mesh?.visible = no # put back in the store
           obj.isFree = yes
           console.log "atgc-bundle-javelot: freed #{obj.id}"
           break
@@ -109,7 +105,7 @@ class module.exports
 
       console.log "atgc-bundle-javelot: asked to free object #{obj.id}"
       obj.tween?.stop?()
-      obj.mesh?.position.z = -10000 # put back in the store
+      obj.mesh?.visible = no # put back in the store
       obj.isFree = yes
       console.log "atgc-bundle-javelot: freed #{obj.id}"
 
@@ -124,7 +120,7 @@ class module.exports
 
     # closure vars
     cruiseDuration = 120000 # @conf.cruiseDuration
-    cruiseSpeed = @conf.cruiseSpeed
+    cruiseSpeed = 300 # @conf.cruiseSpeed
     accelDuration = @conf.accelDuration
 
     for obj in @objects
@@ -136,14 +132,30 @@ class module.exports
       obj.mesh.position.copy app.camera.position
       obj.mesh.quaternion.copy app.camera.quaternion
 
+
+      obj.mesh.geometry.applyMatrix(
+        new THREE.Matrix4().makeRotationFromEuler(
+          new THREE.Euler(- Math.PI / 2, Math.PI, 0)
+        )
+      )
+
+      # don't fire the mesh "inside" the camera, but a bit in front of it
+      obj.mesh.translateZ -30
+
+      obj.mesh.visible = yes
+
+
       # TODO fix mesh orientation. This should be the camera's normal
       # TODO: maybe use a mutation on a "t" var to detect acceleration etc..
+
 
       obj.tween = new TWEEN.Tween({ obj: obj, zvel: 0, zrot: 1 })
         .to({ obj: obj, zvel: cruiseSpeed, zrot: 360 }, cruiseDuration)
         .easing TWEEN.Easing.Quadratic.InOut
         .onUpdate ->
-          this.obj.mesh.translateZ Math.min this.zvel, cruiseSpeed
+          this.obj.mesh.translateZ  -3 # -30 # (Math.min this.zvel, cruiseSpeed)
+
+
           # UNTESTED if we want a "bullet-style" rotation
           # this.obj.mesh.rotateZ Math.PI / this.zrot
 
@@ -157,7 +169,7 @@ class module.exports
 
 
   getControls: (shortcuts) ->
-
+    console.log "atgc-bundle-javelot: registering shortcuts:", shortcuts
     shortcuts.register_many [
       {
         keys : "shift s"
@@ -215,11 +227,10 @@ class module.exports
       btns = {left, middle, right}
       console.log "atgc-bundle-javelot: released " + JSON.stringify(btns) + "(after #{duration}ms)"
 
-      # TODO use some specific "target locked" guidance control code
-      if @app.assets['atgc-core-player']?.get?
-        javelot = @build window.app.assets['atgc-core-player']?.get?()
-        javelot.run()
-        console.log "atgc-bundle-javelot: launched javelot"
+      # TODO we should rather fire an async global event, eg something like
+      # window.callAsyncAndForget('atgc-bundle-javelot:build')
+      window.app.assets['atgc-bundle-javelot']?.build?()
+      console.log "atgc-bundle-javelot: launched javelot"
 
     mouseMove: (mouseX, mouseY, previousX, previousY, deltaX, deltaY, deltaAbs) ->
       #console.log "mouse moved from (#{previousX}, #{previousY}) to (#{mouseX}, #{mouseY}) delta: #{deltaAbs}"
