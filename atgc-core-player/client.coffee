@@ -1,4 +1,4 @@
-DefaultControls = (shortcuts) ->
+DefaultControls = (shortcuts={}) ->
 
   # store for how long each tool button has been pressed
   elapsed: left: 0, middle: 0, right: 0
@@ -16,7 +16,7 @@ DefaultControls = (shortcuts) ->
 
   release: (shortcuts) ->
     console.log "atgc-core-player: releasing default controls"
-    shortcuts.reset()
+    shortcuts.reset?()
 
 
 class module.exports
@@ -28,7 +28,12 @@ class module.exports
       '2': 'right'
 
     # default dummy controls, for debug
-    @controls = DefaultControls
+
+    @controls = {}
+    @shortcuts = {}
+    #@shortcuts ?= new window.keypress.Listener()
+    #@controls?.release? @shortcuts
+    #@controls = DefaultControls @shortcuts
 
   config: (conf) ->
     conf
@@ -37,15 +42,15 @@ class module.exports
     console.log "atgc-core-player: mouseDown", evt
     btn = @_BUTTONS[evt.button.toString()]
     console.log "atgc-core-player: btn: ", btn
-    @controls.elapsed[btn] = + new Date()
-    @controls.mouseDown((evt.button == 0), (evt.button == 1), (evt.button == 2))
+    @controls.elapsed?[btn] = + new Date()
+    @controls.mouseDown?((evt.button == 0), (evt.button == 1), (evt.button == 2))
 
   mouseUpListener: (evt) =>
     console.log "atgc-core-player: mouseUp", evt
     btn = @_BUTTONS[evt.button.toString()]
     now = + new Date()
-    elapsed = now - (@controls.elapsed[btn] ? now)
-    @controls.mouseUp(elapsed, (evt.button == 0), (evt.button == 1), (evt.button == 2))
+    elapsed = now - (@controls.elapsed?[btn] ? now)
+    @controls.mouseUp?(elapsed, (evt.button == 0), (evt.button == 1), (evt.button == 2))
 
   mouseMoveListener: (evt) =>
 
@@ -68,7 +73,7 @@ class module.exports
     vector.unproject( app.camera )
     raycaster = new THREE.Raycaster( app.camera.position, vector.sub( app.camera.position ).normalize() )
 
-    @controls.mouseMove mouseX, mouseY, previousX, previousY, deltaX, deltaY, deltaAbs, raycaster
+    @controls.mouseMove? mouseX, mouseY, previousX, previousY, deltaX, deltaY, deltaAbs, raycaster
 
   uninstall: ->
     document.removeEventListener 'mousemove', @mouseMoveListener
@@ -77,8 +82,8 @@ class module.exports
 
   update: (init) ->
     if init
-      unless @shortcuts?
-        @shortcuts = new window.keypress.Listener()
+
+      @shortcuts = new window.keypress.Listener()
 
       # install new listeners
       document.addEventListener 'mousemove', @mouseMoveListener, no
@@ -88,7 +93,7 @@ class module.exports
 
   # make the player use a tool
   use: (tool) ->
-
+    console.log "use ", tool
     if typeof tool is 'string'
       tool = app.assets[tool]
       unless tool?
@@ -97,10 +102,9 @@ class module.exports
 
     # it is possible that .use() is called before shortcut object is initialized
     # instead of deferring, we initialize it on the spot
-    unless @shortcuts?
-      @shortcuts = new window.keypress.Listener()
+    @shortcuts = new window.keypress.Listener()
 
-    @controls?.release? @shortcuts
+    @controls.release? @shortcuts
     @controls = tool.getControls @shortcuts
 
   # return current player's info
