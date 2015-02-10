@@ -1,7 +1,8 @@
+
 ###
 Decajoule
 ###
-if !Number.prototype.daJ
+if !0.daJ?
   Object.defineProperty Number.prototype, "daJ",
     enumerable: no
     configurable: no
@@ -11,7 +12,7 @@ if !Number.prototype.daJ
 Hectojoule
 Order of magnitude: "3×102 J: kinetic energy of an average person jumping as high as they can" (Wikipedia)
 ###
-if !Number.prototype.hJ
+if !0.hJ?
   Object.defineProperty Number.prototype, "hJ",
     enumerable: no
     configurable: no
@@ -25,7 +26,7 @@ aluminum, requires approximately 10kJ" (Internet)
 " a successful HEL weapon will have to be able to deliver at least 5,000-10,000
 joules per square centimeter on the target." (Internet)
 ###
-if !Number.prototype.kJ
+if !0.kJ?
   Object.defineProperty Number.prototype, "kJ",
     enumerable: no
     configurable: no
@@ -34,7 +35,7 @@ if !Number.prototype.kJ
 ###
 Megajoule
 ###
-if !Number.prototype.MJ
+if !0.MJ?
   Object.defineProperty Number.prototype, "MJ",
     enumerable: no
     configurable: no
@@ -45,7 +46,7 @@ Gigajoule
 Order of magnitude: "6 GJ is about the amount of potential chemical energy in
 a barrel of oil, when combusted" (Wikipedia)
 ###
-if !Number.prototype.GJ
+if !0.GJ?
   Object.defineProperty Number.prototype, "GJ",
     enumerable: no
     configurable: no
@@ -56,7 +57,7 @@ Terajoule
 Order of magnitude: "6.4×1012 J: energy contained in jet fuel in a
 Boeing 747-100B aircraft at max fuel capacity" (Wikipedia)
 ###
-if !Number.prototype.TJ
+if !0.TJ?
   Object.defineProperty Number.prototype, "TJ",
     enumerable: no
     configurable: no
@@ -67,7 +68,7 @@ Petajoule
 Order of magnitude: "1×1015 J: yearly electricity consumption in Greenland as
 of 2008" (Wikipedia)
 ###
-if !Number.prototype.PJ
+if !0.PJ?
   Object.defineProperty Number.prototype, "PJ",
     enumerable: no
     configurable: no
