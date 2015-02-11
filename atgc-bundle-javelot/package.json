@@ -10,8 +10,8 @@
       "scale": 0.5,
 
       "accelDuration": 2000,
-      "cruiseSpeed": 30,
-      "cruiseDuration": 4000,
+      "cruiseSpeed": 3,
+      "cruiseDuration": 60000,
 
       "radiusTop": 0,
       "radiusBottom": 10,
