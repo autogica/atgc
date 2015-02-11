@@ -2,6 +2,7 @@
 Manages all javelots
 ###
 
+# private functions
 after = (t, f) -> setTimeout f, t
 
 # class JavelotInstance
@@ -10,64 +11,94 @@ class module.exports
 
   constructor: (old) ->
 
-    # look for elements of previous asset
-    if old?
-      @objects = old.objects
-      @geometry = old.geometry
-      @material = old.material
+    # this is very, very ugly..
+    destroyer = ->
+      console.log "atgc-bundle-javelot: destroyer"
+      app.assets['atgc-bundle-javelot'].pool.free this.obj
 
+    tweenUpdate = ->
+      this.obj.mesh.translateZ -this.zvel
+
+    @poolConfig =
+
+      geometryFactory: (opts) ->
+        console.log "atgc-bundle-javelot: geometryFactory: ", opts
+        g = new THREE.CylinderGeometry(opts.radiusTop, opts.radiusBottom, opts.height, opts.segmentsRadius)
+
+        g.applyMatrix(new THREE.Matrix4().makeRotationFromEuler(
+          new THREE.Euler(- Math.PI / 2, Math.PI, 0)))
+        g
+
+      # materialFactory : (geometry, opts) -> new THREE.MeshNormalMaterial()
+      meshFactory: (geometry, material, opts)  ->
+        #console.log "atgc-bundle-javelot: meshFactory:", opts
+        m = new THREE.Mesh geometry, material
+        m.scale.x = m.scale.y = m.scale.z = opts.scale
+        m
+
+      ###
+      Attention please:
+      this method is called using simple array: here `@` refers to the Tween instance
+      ###
+      objectDestroyer: (obj) ->
+        console.log "atgc-bundle-javelot: objectDestroyer:", obj
+        # note that we do not destroy the mesh!! this is on purpose: we are
+        # doing pooling, and mesh recycling :)
+        obj.tween.stop()
+        # TODO order an atgc-core-explosion here
+        # using money used for our own object, and allocated to the explosive
+        # warhead
+
+      objectFactory: (obj, opts) ->
+        console.log "atgc-bundle-javelot: objectFactory:", obj, opts
+        obj.mesh.position.copy app.camera.position
+        obj.mesh.quaternion.copy app.camera.quaternion
+        obj.mesh.geometry.applyMatrix(
+          new THREE.Matrix4().makeRotationFromEuler(
+            new THREE.Euler(- Math.PI / 2, Math.PI, 0)
+          )
+        )
+
+        obj.cruiseSpeed = opts.cruiseSpeed
+        obj.cruiseDuration = opts.cruiseDuration
+
+        obj.mesh.translateZ -30 # don't fire the mesh "inside" the camera, but a bit in front of it
+
+        console.log "atgc-bundle-javelot: objectFactory: new Tween.."
+        obj.tween = new TWEEN.Tween({ obj: obj, zvel: 0, zrot: 1 })
+          .to({ obj: obj, zvel: obj.cruiseSpeed, zrot: 360 }, obj.cruiseDuration)
+          .easing TWEEN.Easing.Linear.None # TWEEN.Easing.Quadratic.InOut
+          .onUpdate tweenUpdate
+          .onStop destroyer
+          .onComplete destroyer
+          .start()
+        obj
+
+    @pool = new ObjectPoolFactory 1000
+
+
+  # TODO merge config and update into the same function
   config: (conf) ->
+    @poolConfig.buildOptions = conf
+    conf
 
-    sizeX: conf.sizeX
-    sizeY: conf.sizeY
-    sizeZ: conf.sizeZ
-    scale: conf.scale
-
-    cruiseDuration: conf.cruiseDuration
-    cruiseSpeed: conf.cruiseSpeed
-    accelDuration: conf.accelDuration
-
-    radiusTop: conf.radiusTop
-    radiusBottom: conf.radiusBottom
-    height: conf.height
-    segmentsRadius: conf.segmentsRadius
-
+  # called when config changes
   update: (init) ->
+    console.log "atgc-bundle-javelot: update"
+    # init is set the first time we load the config
+    # this is the only time where it is acceptable to be a bit laggy
+    # and freeze a little bit the app
+    console.log "atgc-bundle-javelot: update: settings changed, recompiling.."
+    @pool.compile @poolConfig
     if init
-
-      # destroy former geometry and material
-      @geometry?.dispose?()
-      @geometry = new THREE.CylinderGeometry(
-        @conf.radiusTop,
-        @conf.radiusBottom,
-        @conf.height,
-        @conf.segmentsRadius
-      )
-
-      @material?.dispose?()
-      @material = new THREE.MeshNormalMaterial()
-
-      @objects ?= []
-      if @objects.length is 0
-        @objects = for id in [0...1000]
-          mesh = new THREE.Mesh @geometry, @material
-          mesh.position.x = 0
-          mesh.position.y = 0
-          mesh.position.z = 0
-          mesh.scale.x = mesh.scale.y = mesh.scale.z = @conf.scale
-          mesh.visible = no
-          @app.scene.add mesh
-
-          id: id
-          mesh: mesh
-          isFree: yes
-
-      # perfectly bad example why we need an async library:
-      setTimeout((=> window.app.assets['atgc-core-player']?.use? window.app.assets['atgc-bundle-javelot']), 2000)
-
+      @pool.addToScene @app.scene
+      after 3000, ->
+        console.log "atgc-bundle-javelot: putting javelot into player's hands"
+        # this should a stateless, async message of action..
+        app.assets['atgc-core-player']?.use? app.assets['atgc-bundle-javelot']
 
   ###
-  Update the orientation of plants
+  Update the orientation of Javelots
   ###
   render: ->
     # TODO a javelot lookAt is camera's lookAt
@@ -76,142 +107,68 @@ class module.exports
     # later, if the user's select another mesh, we go there.
 
 
+  order: (n, opts={}) ->
+    console.log "atgc-bundle-javelot: order for #{n} instances:", opts
 
-  empty: ->
-    return
+    validOpts =
+      cruiseSpeed: Math.abs opts.cruiseSpeed ? 3
+      cruiseDuration: Math.abs opts.cruiseDuration ? 60 * 1000
+      warheadPower: Math.abs opts.warheadPower ? 1000
 
+    # TODO check parameters here
 
-  free: (obj) ->
-    console.log "asked to free ", obj
-    if typeof obj is 'undefined'
-      throw "NullPointerException: you tried to free an undefined reference"
-    if typeof obj is "string"
-      id = obj
-      console.log "atgc-bundle-javelot: asked to free object id #{id}"
-      for obj in @objects
-        if obj.id is id
-          if obj.isFree
-            console.log "atgc-bundle-javelot: object is already free"
-            return
-          obj.tween?.stop?()
-          obj.mesh?.visible = no # put back in the store
-          obj.isFree = yes
-          console.log "atgc-bundle-javelot: freed #{obj.id}"
-          break
-    else
-      if obj.isFree
-        console.log "atgc-bundle-javelot: object is already free"
-        return
+    cruisePrice = Math.abs validOpts.cruiseSpeed * validOpts.cruiseDuration * 0.10
 
-      console.log "atgc-bundle-javelot: asked to free object #{obj.id}"
-      obj.tween?.stop?()
-      obj.mesh?.visible = no # put back in the store
-      obj.isFree = yes
-      console.log "atgc-bundle-javelot: freed #{obj.id}"
+    warheadPrice = Math.abs validOpts.warheadPower * 10
 
+    unitPrice = warheadPrice + cruisePrice # TODO add the joule unit
 
+    pool = @pool
 
-  # 'this' is the Tween
-  onStopOrComplete: ->
-    app.assets['atgc-bundle-javelot']?.free? this.obj
+    console.log "atgc-bundle-javelot:",
+      validOpts: validOpts
+      cruisePrice: cruisePrice
+      warheadPrice: warheadPrice
+      unitPrice: unitPrice
+      price: n * unitPrice
 
-  build: ->
-    console.log "atgc-bundle-javelot: building javelot.."
-
-    # closure vars
-    cruiseDuration = 120000 # @conf.cruiseDuration
-    cruiseSpeed = 300 # @conf.cruiseSpeed
-    accelDuration = @conf.accelDuration
-
-    for obj in @objects
-      continue unless obj.isFree
-      continue unless obj.mesh?
-
-      obj.isFree = no
-
-      obj.mesh.position.copy app.camera.position
-      obj.mesh.quaternion.copy app.camera.quaternion
-
-
-      obj.mesh.geometry.applyMatrix(
-        new THREE.Matrix4().makeRotationFromEuler(
-          new THREE.Euler(- Math.PI / 2, Math.PI, 0)
-        )
-      )
-
-      # don't fire the mesh "inside" the camera, but a bit in front of it
-      obj.mesh.translateZ -30
-
-      obj.mesh.visible = yes
-
-
-      # TODO fix mesh orientation. This should be the camera's normal
-      # TODO: maybe use a mutation on a "t" var to detect acceleration etc..
-
-
-      obj.tween = new TWEEN.Tween({ obj: obj, zvel: 0, zrot: 1 })
-        .to({ obj: obj, zvel: cruiseSpeed, zrot: 360 }, cruiseDuration)
-        .easing TWEEN.Easing.Quadratic.InOut
-        .onUpdate ->
-          this.obj.mesh.translateZ  -3 # -30 # (Math.min this.zvel, cruiseSpeed)
-
-
-          # UNTESTED if we want a "bullet-style" rotation
-          # this.obj.mesh.rotateZ Math.PI / this.zrot
-
-        .onStop @onStopOrComplete
-        .onComplete @onStopOrComplete
-
-      obj.tween.start()
-      console.log "atgc-bundle-javelot: fired object"
+    price: n * unitPrice
+    accept: (cb) ->
+      console.log "atgc-bundle-javelot: accepted order"
+      # TODO execute transaction here
+      cb pool.get n, validOpts
       return
-    console.log "atgc-bundle-javelot: couldn't find a free slot"
-
 
   getControls: (shortcuts) ->
-    console.log "atgc-bundle-javelot: registering shortcuts:", shortcuts
+    console.log "atgc-bundle-javelot: configuring shortcuts.."
+    buildup =
+      j: 1
+      busy: no
     shortcuts.register_many [
-      {
-        keys : "shift s"
-        is_exclusive: yes
-        on_keydown: ->
-          console.log "atgc-bundle-javelot: You pressed shift and s together."
-        on_keyup: (e) ->
-          console.log "atgc-bundle-javelot: And now you've released one of the keys."
-        "this": @
-      },
       {
         keys: "j"
         is_exclusive: true
         on_keydown: ->
           console.log "atgc-bundle-javelot: j pressed"
-        on_keyup: (e) ->
-          console.log "atgc-bundle-javelot: you released j, we fire something"
-          window.app.assets['atgc-bundle-javelot']?.build?()
-          # Normally because we have a keyup event handler,
-          # event.preventDefault() would automatically be called.
-          # But because we're returning true in this handler,
-          # event.preventDefault() will not be called.
-          yes
-        "this": @
-      },
-      {
-        keys: "b"
-        is_exclusive: true
-        on_keydown: ->
-          console.log "atgc-bundle-javelot: b pressed"
-        on_keyup: (e) ->
-          console.log "atgc-bundle-javelot: you released b, we build a random building"
+          buildup.j = buildup.j + 1
+          buildup.busy = yes
 
-          # Normally because we have a keyup event handler,
-          # event.preventDefault() would automatically be called.
-          # But because we're returning true in this handler,
-          # event.preventDefault() will not be called.
-          yes
+        on_keyup: (e) ->
+          if buildup.busy = yes
+            nbRockets = Math.round(buildup.j / 5)
+            console.log "atgc-bundle-javelot: you released j, we fire #{nbRockets} Javelot rockets"
+            order = window.app.assets['atgc-bundle-javelot']?.order nbRockets
+            buildup.j = 1
+            buildup.busy = no
+
+            console.log "atgc-bundle-javelot: gonna cost us #{order.price}"
+            order.accept (goods) ->
+              console.log "atgc-bundle-javelot: received goods!"
+
+          yes # 'yes' means event.preventDefault() won't be called
         "this": @
       }
     ]
-
 
     # store for how long each tool button has been pressed
     elapsed:
@@ -229,8 +186,11 @@ class module.exports
 
       # TODO we should rather fire an async global event, eg something like
       # window.callAsyncAndForget('atgc-bundle-javelot:build')
-      window.app.assets['atgc-bundle-javelot']?.build?()
-      console.log "atgc-bundle-javelot: launched javelot"
+      order = window.app.assets['atgc-bundle-javelot']?.order 1
+      console.log "atgc-bundle-javelot: gonna cost us #{order.price}"
+      order.accept (goods) ->
+        console.log "atgc-bundle-javelot: received goods!"
+
 
     mouseMove: (mouseX, mouseY, previousX, previousY, deltaX, deltaY, deltaAbs) ->
       #console.log "mouse moved from (#{previousX}, #{previousY}) to (#{mouseX}, #{mouseY}) delta: #{deltaAbs}"
