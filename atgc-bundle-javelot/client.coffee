@@ -24,9 +24,6 @@ class module.exports
       geometryFactory: (opts) ->
         console.log "atgc-bundle-javelot: geometryFactory: ", opts
         g = new THREE.CylinderGeometry(opts.radiusTop, opts.radiusBottom, opts.height, opts.segmentsRadius)
-
-        g.applyMatrix(new THREE.Matrix4().makeRotationFromEuler(
-          new THREE.Euler(- Math.PI / 2, Math.PI, 0)))
         g
 
       # materialFactory : (geometry, opts) -> new THREE.MeshNormalMaterial()
