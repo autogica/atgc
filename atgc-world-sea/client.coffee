@@ -25,7 +25,7 @@ class module.exports
 
     if init
       console.log "initializing sea shaders.."
-      @waterNormals = new THREE.ImageUtils.loadTexture 'textures/waternormals.jpg'
+      @waterNormals = new THREE.ImageUtils.loadTexture 'textures/normal-maps/waternormals.jpg'
       @waterNormals.wrapS = @waterNormals.wrapT = THREE.RepeatWrapping
 
       waterParams =
@@ -45,7 +45,7 @@ class module.exports
       @mesh.rotation.x = - Math.PI * 0.5
 
       @app.scene.add @mesh
-      
+
       @position = @mesh.position
 
     #@mesh.material.opacity = @conf.waterOpacity
