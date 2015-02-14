@@ -4,20 +4,22 @@
   "description": "JAVELOT: a rocket fired by jet. Needs to be first locked by pressing the mouse for 2 seconds",
   "gunfire":{
     "clientSettings":{
-      "sizeX": 4000,
-      "sizeY": 4000,
-      "sizeZ": 4000,
-      "scale": 0.5,
 
-      "accelDuration": 2000,
-      "cruiseSpeed": 3,
-      "cruiseDuration": 60000,
+      "build": {
+        "scale": 0.5,
+        "radiusTop": 0,
+        "radiusBottom": 10,
+        "height": 100,
+        "segmentsRadius": 8,
+        "segmentsHeight": 4
+      },
 
-      "radiusTop": 0,
-      "radiusBottom": 10,
-      "height": 100,
-      "segmentsRadius": 8,
-      "segmentsHeight": 4
+      "runtime":{
+        "speed": 30,
+        "lifetime": 60000,
+        "payload": 1000
+      }
+
     }
   }
 }

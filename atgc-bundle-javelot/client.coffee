@@ -5,189 +5,285 @@ Manages all javelots
 # private functions
 after = (t, f) -> setTimeout f, t
 
+aclamp = (value, min = 0, max = 1) ->
+  if isNaN(value) or !isFinite(value)
+    return 0
+  else
+    return Math.min(Math.min(max, Math.abs(value)), max)
+
 # class JavelotInstance
 
 class module.exports
 
   constructor: (old) ->
 
-    # this is very, very ugly..
+    @master = undefined
+    @masterNode = window.app.camera # by defaut, we emit stuff in from of the camera
+
+    @state =
+      stock: []
+      orderedAmount: 0
+      orderInProgress: no
+
+      buildupTime:
+        left: 0
+        middle: 0
+        right: 0
+
+    if old?.master?
+      @master = old.master
+
+    if old?.masterNode?
+      @masterNode = old.masterNode
+
+    if old?.state?
+      @state = old.state
+
+    # console.log "atgc-bundle-javelot.constructor: going to initialize pool"
+    pool = if old?.pool?
+        old.pool
+      else
+        new ObjectPoolFactory()
+
+    @pool = pool
+
     destroyer = ->
-      console.log "atgc-bundle-javelot: destroyer"
-      app.assets['atgc-bundle-javelot'].pool.free this.obj
+      #console.log "atgc-bundle-javelot: destroyer"
+      pool.free this.obj
 
     tweenUpdate = ->
-      this.obj.mesh.translateZ -this.zvel
+      console.log this.zvel
+      if this.zvel < 0
+        # actually this should be the velocity of the jet :)
+        this.obj.mesh.translateZ -this.zvel * 0.10
 
-    @poolConfig =
+        this.obj.mesh.translateY this.zvel * 0.10
+      else
+        this.obj.mesh.translateZ -Math.min(this.zvel, this.zvelmax)
+
+    console.log "atgc-bundle-javelot.constructor: going to call pool.update"
+    pool.update
+
+      size: 1000
 
       geometryFactory: (opts) ->
-        console.log "atgc-bundle-javelot: geometryFactory: ", opts
-        g = new THREE.CylinderGeometry(opts.radiusTop, opts.radiusBottom, opts.height, opts.segmentsRadius)
-        g
+        new THREE.CylinderGeometry(opts.radiusTop, opts.radiusBottom, opts.height, opts.segmentsRadius)
 
       # materialFactory : (geometry, opts) -> new THREE.MeshNormalMaterial()
       meshFactory: (geometry, material, opts)  ->
-        #console.log "atgc-bundle-javelot: meshFactory:", opts
         m = new THREE.Mesh geometry, material
         m.scale.x = m.scale.y = m.scale.z = opts.scale
         m
 
-      ###
-      Attention please:
-      this method is called using simple array: here `@` refers to the Tween instance
-      ###
       objectDestroyer: (obj) ->
-        console.log "atgc-bundle-javelot: objectDestroyer:", obj
-        # note that we do not destroy the mesh!! this is on purpose: we are
-        # doing pooling, and mesh recycling :)
         obj.tween.stop()
-        # TODO order an atgc-core-explosion here
+        delete obj.teleportInFrontOf
+        delete obj.run
+        delete obj.tween
+        delete obj.setMasterNode
+        delete obj.teleportTo
+        # TODO order an atgc-core-explosion here using obj.payload
+        #window.app.assets['atgc-core-explosion']?.order(1, payload: payload).accept()
         # using money used for our own object, and allocated to the explosive
         # warhead
 
       objectFactory: (obj, opts) ->
-        console.log "atgc-bundle-javelot: objectFactory:", obj, opts
-        obj.mesh.position.copy app.camera.position
-        obj.mesh.quaternion.copy app.camera.quaternion
-        obj.mesh.geometry.applyMatrix(
-          new THREE.Matrix4().makeRotationFromEuler(
-            new THREE.Euler(- Math.PI / 2, Math.PI, 0)
-          )
-        )
+        #console.log "atgc-bundle-javelot: objectFactory:", obj, opts
 
-        obj.cruiseSpeed = opts.cruiseSpeed
-        obj.cruiseDuration = opts.cruiseDuration
+        obj.speed = opts.speed
+        obj.lifetime = opts.lifetime
+        obj.payload = opts.payload
+        obj.masterNode = opts.masterNode
 
-        obj.mesh.translateZ -30 # don't fire the mesh "inside" the camera, but a bit in front of it
+        sourceValues =
+          obj: obj
+          zvel: 0
+          zvelmax: obj.speed
+          zrot: 1
 
-        console.log "atgc-bundle-javelot: objectFactory: new Tween.."
-        obj.tween = new TWEEN.Tween({ obj: obj, zvel: 0, zrot: 1 })
-          .to({ obj: obj, zvel: obj.cruiseSpeed, zrot: 360 }, obj.cruiseDuration)
-          .easing TWEEN.Easing.Linear.None # TWEEN.Easing.Quadratic.InOut
+        targetValues =
+          obj: obj
+          zvel: obj.speed # (obj.duration / 3000) # want this to last 3 seconds
+          zvelmax: obj.speed
+          zrot: 360
+
+        #console.log "atgc-bundle-javelot: objectFactory: new Tween.."
+        # TODO create an animation in 4 steps:
+        # 1. fallback / motor is disabled
+        #. 2 acceleration, aiming at target, straight, with easing in out
+        #. 3. cruise, more or less straight to target
+        #. 4. exhausted, with errative movement eg. random rotation, cycling, hyperbolic movement
+        obj.tween = new TWEEN.Tween(sourceValues)
+          .to(targetValues, obj.lifetime)
+          .easing TWEEN.Easing.Back.In # TWEEN.Easing.Quadratic.InOut
           .onUpdate tweenUpdate
           .onStop destroyer
           .onComplete destroyer
-          .start()
+
+
+        obj.setMasterNode = (masterNode) ->
+          obj.masterNode = masterNode
+          obj
+
+        obj.teleportTo = (node) ->
+          obj.mesh.position.copy node.position
+          obj.mesh.quaternion.copy node.quaternion
+          obj.mesh.geometry.applyMatrix(
+            new THREE.Matrix4().makeRotationFromEuler(
+              new THREE.Euler(- Math.PI / 2, Math.PI, 0)
+            )
+          )
+          obj.mesh.translateZ -60
+          obj
+
+        obj.run = ->
+          obj.mesh.position.copy obj.masterNode.position
+          obj.mesh.quaternion.copy obj.masterNode.quaternion
+          obj.mesh.geometry.applyMatrix(
+            new THREE.Matrix4().makeRotationFromEuler(
+              new THREE.Euler(- Math.PI / 2, Math.PI, 0)
+            )
+          )
+          obj.mesh.translateZ -60
+
+          obj.mesh.visible = yes
+          obj.tween.start()
+          obj
+
         obj
 
-    @pool = new ObjectPoolFactory 1000
 
 
-  # TODO merge config and update into the same function
+  # parse config file
   config: (conf) ->
-    @poolConfig.buildOptions = conf
     conf
 
-  # called when config changes
-  update: (init) ->
-    console.log "atgc-bundle-javelot: update"
-    # init is set the first time we load the config
-    # this is the only time where it is acceptable to be a bit laggy
-    # and freeze a little bit the app
-    console.log "atgc-bundle-javelot: update: settings changed, recompiling.."
-    @pool.compile @poolConfig
+  # called when config changes: note, config should be passed as argument
+  #
+  update: (init, opts) ->
+
+    console.log "atgc-bundle-javelot.update: settings changed, recompiling.."
+    # TODO: optimize by doing a separation between build options and
+    @pool.update buildOptions: opts.build
     if init
-      @pool.addToScene @app.scene
+      @pool.connectTo @app.scene
       after 3000, ->
-        console.log "atgc-bundle-javelot: putting javelot into player's hands"
+        console.log "atgc-bundle-javelot.update->after: putting javelot into player's hands"
         # this should a stateless, async message of action..
-        app.assets['atgc-core-player']?.use? app.assets['atgc-bundle-javelot']
+        app.assets['atgc-core-player']?.getBound 'atgc-bundle-javelot'
 
   ###
-  Update the orientation of Javelots
+  Update the orientation of Javelots?
   ###
   render: ->
-    # TODO a javelot lookAt is camera's lookAt
-    # or a look
-    # push the javelot along it's axis
-    # later, if the user's select another mesh, we go there.
+    # not used right now
 
+  order: (opts={}) ->
+    console.log "atgc-bundle-javelot: order for #{opts.nbInstances} instances:", opts
 
-  order: (n, opts={}) ->
-    console.log "atgc-bundle-javelot: order for #{n} instances:", opts
+    budget = opts.budget ? 0
 
     validOpts =
-      cruiseSpeed: Math.abs opts.cruiseSpeed ? 3
-      cruiseDuration: Math.abs opts.cruiseDuration ? 60 * 1000
-      warheadPower: Math.abs opts.warheadPower ? 1000
 
-    # TODO check parameters here
+      # common settings
+      masterNode: opts.masterNode
+      nbInstances: aclamp opts.nbInstances, 1, 100
 
-    cruisePrice = Math.abs validOpts.cruiseSpeed * validOpts.cruiseDuration * 0.10
+      # less common settings
+      speed:    aclamp opts.speed, 0, 1000
+      lifetime: aclamp opts.lifetime, 0, 3600000
+      payload:  aclamp opts.payload, 10, 1000
 
-    warheadPrice = Math.abs validOpts.warheadPower * 10
 
-    unitPrice = warheadPrice + cruisePrice # TODO add the joule unit
+    console.log validOpts
+    ###
+    unless validOpts.deliverTo?
+      throw "atgc-bundle-javelot.order: invalid deliverTo"
+    deli = validOpts.deliverTo # short as a shortcut
+    unless deli.position? and deli.quaternion?
+      unless deli.parent?.position? or deli.parent?.quaternion?
+        throw "atgc-bundle-javelot.order: invalid deliverTo setting (no position and/or quaternion)"
+      console.log "atgc-bundle-javelot.order: using parent's coordinates"
+      validOpts.deliverTo = deli.parent
+    ###
 
-    pool = @pool
+    cruisePrice = validOpts.speed * validOpts.lifetime * 0.10
 
-    console.log "atgc-bundle-javelot:",
+    payloadPrice = validOpts.payload * 10
+
+    unitPrice = payloadPrice + cruisePrice # TODO add the joule unit
+
+    console.log "atgc-bundle-javelot.order: stats:",
+      budget: budget
       validOpts: validOpts
       cruisePrice: cruisePrice
-      warheadPrice: warheadPrice
+      payloadPrice: payloadPrice
       unitPrice: unitPrice
-      price: n * unitPrice
+      price: validOpts.nbInstances * unitPrice
 
-    price: n * unitPrice
-    accept: (cb) ->
-      console.log "atgc-bundle-javelot: accepted order"
+    price: validOpts.nbInstances * unitPrice
+    accept: (callback) =>
+      console.log "atgc-bundle-javelot.order->accept: accepted order"
       # TODO execute transaction here
-      cb pool.get n, validOpts
-      return
+      # if the client budget gets negative, we notify the bank which will take
+      # strict actions like terminate the player / entity
+      # isValid = window.app.assets['atgc-core-bank'].executeTransaction(..)
+      #
+      @pool.getAsync validOpts, callback
 
-  getControls: (shortcuts) ->
-    console.log "atgc-bundle-javelot: configuring shortcuts.."
-    buildup =
-      j: 1
-      busy: no
-    shortcuts.register_many [
-      {
-        keys: "j"
-        is_exclusive: true
-        on_keydown: ->
-          console.log "atgc-bundle-javelot: j pressed"
-          buildup.j = buildup.j + 1
-          buildup.busy = yes
+  addToCart: =>
+    console.log "atgc-bundle-javelot.addtoCart:"
+    @state.orderedAmount = @state.orderedAmount + 1
+    @state.orderInProgress = yes
+    @
 
-        on_keyup: (e) ->
-          if buildup.busy = yes
-            nbRockets = Math.round(buildup.j / 5)
-            console.log "atgc-bundle-javelot: you released j, we fire #{nbRockets} Javelot rockets"
-            order = window.app.assets['atgc-bundle-javelot']?.order nbRockets
-            buildup.j = 1
-            buildup.busy = no
+  payForCart: =>
+    return unless @state.orderInProgress
+    nbRockets = 1 + Math.round(@state.orderedAmount / 5)
+    console.log "atgc-bundle-javelot.payForCart: you released b, we buy #{nbRockets} Javelot rockets"
+    # note: taking an order is fast but not *very* fast (ie. it's not synchronous)
+    # so maybe the player would prefer to
+    order = @order
+      nbInstances: nbRockets
+      masterNode: @masterNode # we could also give the object to a robot etc..
+      speed: 20
+      lifetime: 20000
+      payload: 1000
 
-            console.log "atgc-bundle-javelot: gonna cost us #{order.price}"
-            order.accept (goods) ->
-              console.log "atgc-bundle-javelot: received goods!"
+    @state.orderedAmount = 0
+    @state.orderInProgress = no
 
-          yes # 'yes' means event.preventDefault() won't be called
-        "this": @
-      }
-    ]
+    console.log "atgc-bundle-javelot.payForCart: gonna cost us #{order.price}"
+    order.accept (rockets) =>
+      # pile up warheads
+      @state.stock = @state.stock.concat rockets
+      console.log "atgc-bundle-javelot.payForCart->acceptOrder: received goods, adding to stock.."
+    @
 
-    # store for how long each tool button has been pressed
-    elapsed:
-      left: 0
-      middle: 0
-      right: 0
+  # define what happens when a human player take control of the javelot
+  bind: (master) ->
+    console.log "atgc-bundle-javelot.bind: giving control to controller.."
+    @master = master
+    @masterNode = master.node
+    Mousetrap.unbind 'b'
+    Mousetrap.bind 'b', @addToCart
+    Mousetrap.bind 'b', @payForCart, 'keyup'
+    @
 
-    mouseDown: (left, middle, right) =>
-      btns = {left, middle, right}
-      console.log "atgc-bundle-javelot: pressed " + JSON.stringify btns
+  mouseDown: (left, middle, right) ->
+    console.log "atgc-bundle-javelot.mouseDown: pressed ", {left, middle, right}
+    @state.stock.pop()?.run()
 
-    mouseUp: (duration, left, middle, right) =>
-      btns = {left, middle, right}
-      console.log "atgc-bundle-javelot: released " + JSON.stringify(btns) + "(after #{duration}ms)"
+  mouseUp: (duration, left, middle, right) ->
+    console.log "atgc-bundle-javelot.mouseUp: released after #{duration}ms:", {left, middle, right}
 
-      # TODO we should rather fire an async global event, eg something like
-      # window.callAsyncAndForget('atgc-bundle-javelot:build')
-      order = window.app.assets['atgc-bundle-javelot']?.order 1
-      console.log "atgc-bundle-javelot: gonna cost us #{order.price}"
-      order.accept (goods) ->
-        console.log "atgc-bundle-javelot: received goods!"
+  mouseMove: (mouseX, mouseY, previousX, previousY, deltaX, deltaY, deltaAbs, raycaster) ->
+    #console.log "atgc-bundle-javelot.mouseMove: mouse moved"
+    #console.log "mouse moved from (#{previousX}, #{previousY}) to (#{mouseX}, #{mouseY}) delta: #{deltaAbs}"
 
-
-    mouseMove: (mouseX, mouseY, previousX, previousY, deltaX, deltaY, deltaAbs) ->
-      #console.log "mouse moved from (#{previousX}, #{previousY}) to (#{mouseX}, #{mouseY}) delta: #{deltaAbs}"
+  unbind: ->
+    console.log "atgc-bundle-javelot.unbind: releasing default controls"
+    Mousetrap.unbind 'b'
+    #@master = undefined # for debugging purpose, we put stuff in from of the camera
+    @masterNode = window.app.camera
+    @
