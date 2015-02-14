@@ -6,6 +6,7 @@ class module.exports
 
     @bodies = []
     @enabled = no
+    @debug = yes
 
   radianToDegree: (rad) -> rad * 57.29577951308232 # u rad?
 
@@ -116,25 +117,35 @@ class module.exports
       for body in @bodies
         body.update()
 
-    # compute fps
-    time = Date.now()
-    if time - 1000 > @time_prev
-      @time_prev = time
-      @fpsint = @fps
-      @fps = 0
-    @fps++
+    if window.app.debug
+      if !@debug
+        document.getElementById('stats').style.display = 'block';
+      @debug = yes
+      # compute fps
+      time = Date.now()
+      if time - 1000 > @time_prev
+        @time_prev = time
+        @fpsint = @fps
+        @fps = 0
+      @fps++
 
-    @elem.innerHTML = """
-      Physics engine:<br><br>
-        FPS: #{@fpsint} fps<br><br>
-        Rigidbody:  #{@world.numRigidBodies} <br>
-        Contact:  #{@world.numContacts} <br>
-        Pair Check:  #{@world.broadPhase.numPairChecks} <br>
-        Contact Point:  #{@world.numContactPoints} <br>
-        Island:  #{@world.numIslands} <br><br>
-        Broad-Phase:  #{@world.performance.broadPhaseTime} ms<br>
-        Narrow-Phase:  #{@world.performance.narrowPhaseTime} ms<br>
-        Solving: #{@world.performance.solvingTime} ms<br>
-        Updating:  #{@world.performance.updatingTime} ms<br>
-        Total:  #{@world.performance.totalTime} ms
-      """
+      @elem.innerHTML = """
+        Physics engine:<br><br>
+          FPS: #{@fpsint} fps<br><br>
+          Rigidbody:  #{@world.numRigidBodies} <br>
+          Contact:  #{@world.numContacts} <br>
+          Pair Check:  #{@world.broadPhase.numPairChecks} <br>
+          Contact Point:  #{@world.numContactPoints} <br>
+          Island:  #{@world.numIslands} <br><br>
+          Broad-Phase:  #{@world.performance.broadPhaseTime} ms<br>
+          Narrow-Phase:  #{@world.performance.narrowPhaseTime} ms<br>
+          Solving: #{@world.performance.solvingTime} ms<br>
+          Updating:  #{@world.performance.updatingTime} ms<br>
+          Total:  #{@world.performance.totalTime} ms
+        """
+    else
+      if !@debug
+        document.getElementById('stats').style.display = 'none';
+        @elem.innerHTML = """"""
+
+      @debug = no
