@@ -6,6 +6,7 @@ class module.exports
 
     @bodies = []
     @enabled = no
+    @debug = yes
 
   radianToDegree: (rad) -> rad * 57.29577951308232 # u rad?
 
@@ -93,12 +94,6 @@ class module.exports
 
       @world	= new OIMO.World timeStep, broadPhaseType, iterations
 
-      # Oimo Physics use international system units 0.1 to 10 meters max for dynamique body.
-      # In demo with three.js, i scale all by 100 so object is between 10 to 10000 three unit.
-      # You can change world scale.
-      # for three : world.worldscale(100);
-      @world.worldscale 100
-
       # override settings
       @world.gravity = new OIMO.Vec3(0, gravityY, 0)
 
@@ -122,25 +117,35 @@ class module.exports
       for body in @bodies
         body.update()
 
-    # compute fps
-    time = Date.now()
-    if time - 1000 > @time_prev
-      @time_prev = time
-      @fpsint = @fps
-      @fps = 0
-    @fps++
+    if window.app.debug
+      if !@debug
+        document.getElementById('stats').style.display = 'block';
+      @debug = yes
+      # compute fps
+      time = Date.now()
+      if time - 1000 > @time_prev
+        @time_prev = time
+        @fpsint = @fps
+        @fps = 0
+      @fps++
 
-    @elem.innerHTML = """
-      Physics engine:<br><br>
-        FPS: #{@fpsint} fps<br><br>
-        Rigidbody:  #{@world.numRigidBodies} <br>
-        Contact:  #{@world.numContacts} <br>
-        Pair Check:  #{@world.broadPhase.numPairChecks} <br>
-        Contact Point:  #{@world.numContactPoints} <br>
-        Island:  #{@world.numIslands} <br><br>
-        Broad-Phase:  #{@world.performance.broadPhaseTime} ms<br>
-        Narrow-Phase:  #{@world.performance.narrowPhaseTime} ms<br>
-        Solving: #{@world.performance.solvingTime} ms<br>
-        Updating:  #{@world.performance.updatingTime} ms<br>
-        Total:  #{@world.performance.totalTime} ms
-      """
+      @elem.innerHTML = """
+        Physics engine:<br><br>
+          FPS: #{@fpsint} fps<br><br>
+          Rigidbody:  #{@world.numRigidBodies} <br>
+          Contact:  #{@world.numContacts} <br>
+          Pair Check:  #{@world.broadPhase.numPairChecks} <br>
+          Contact Point:  #{@world.numContactPoints} <br>
+          Island:  #{@world.numIslands} <br><br>
+          Broad-Phase:  #{@world.performance.broadPhaseTime} ms<br>
+          Narrow-Phase:  #{@world.performance.narrowPhaseTime} ms<br>
+          Solving: #{@world.performance.solvingTime} ms<br>
+          Updating:  #{@world.performance.updatingTime} ms<br>
+          Total:  #{@world.performance.totalTime} ms
+        """
+    else
+      if !@debug
+        document.getElementById('stats').style.display = 'none';
+        @elem.innerHTML = """"""
+
+      @debug = no
