@@ -168,9 +168,9 @@ class module.exports
     if init
       @pool.connectTo @app.scene
       after 3000, ->
-        console.log "atgc-bundle-javelot.update->after: putting javelot into player's hands"
+        #console.log "atgc-bundle-javelot.update->after: putting javelot into player's hands"
         # this should a stateless, async message of action..
-        app.assets['atgc-core-player']?.getBound 'atgc-bundle-javelot'
+        #app.assets['atgc-core-player']?.getBound 'atgc-bundle-javelot'
 
   ###
   Update the orientation of Javelots?
