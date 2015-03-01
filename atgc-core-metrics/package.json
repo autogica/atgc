@@ -1,0 +1,16 @@
+{
+  "name": "atgc-core-metrics",
+  "version": "0.0.0",
+  "description": "collect metrics from the virtual world and send them to influx",
+  "gunfire":{
+    "clientSettings": {
+      "influxdb":{
+        "host": "localhost",
+        "port": "8086",
+        "username": "atgc",
+        "password": "atgc",
+        "database": "atgc"
+      }
+    }
+  }
+}
