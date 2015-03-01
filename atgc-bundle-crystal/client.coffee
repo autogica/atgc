@@ -101,20 +101,20 @@ class module.exports
         g.computeFaceNormals()
         g.computeVertexNormals()
         g.computeMorphNormals()
-        #g.computeTangents()
+        g.computeTangents()
         g.computeBoundingBox()
         g.computeBoundingSphere()
 
 
         g
 
-      materialFactory: (geometry, opts) ->
+      materialFactory : (geometry, opts) ->
 
-        params =
+        m = new THREE.ShaderMaterial
           uniforms:
             tNormal:
               type: 't'
-              value: THREE.ImageUtils.loadTexture 'textures/normal-maps/chesterfield.jpg'
+              value: THREE.ImageUtils.loadTexture 'textures/normal-maps/damaged-brickwall.jpg'
             tMatCap:
               type: 't'
               value: THREE.ImageUtils.loadTexture 'textures/material-maps/atgc_crystal.jpg'
@@ -148,35 +148,15 @@ class module.exports
             normalRepeat:
               type: 'f'
               value: 1
-           vertexShader: document.getElementById( 'vertexShader' ).textContent
-           fragmentShader: document.getElementById( 'fragmentShader' ).textContent
-          wrapping: THREE.ClampToEdgeWrapping
-          shading: THREE.SmoothShading
-          side: THREE.DoubleSide
-        m = new THREE.ShaderMaterial params
+          vertexShader: document.getElementById( 'sem-vs' ).textContent
+          fragmentShader: document.getElementById( 'sem-fs' ).textContent
+          shading: THREE.FlatShading
 
-        console.log "atgc-bundle-crystal.materialFactory: created THREE.ShaderMaterial with params:", params
         m.uniforms.tMatCap.value.wrapS = m.uniforms.tMatCap.value.wrapT = THREE.ClampToEdgeWrapping
         m.uniforms.tNormal.value.wrapS = m.uniforms.tNormal.value.wrapT = THREE.RepeatWrapping
 
-        params2 =
-          uniforms:
-            resolution:
-              type: 'v2'
-              value: new THREE.Vector2( 0, 0 )
-            noise:
-              type: 'f'
-              value: .04
-          vertexShader: document.getElementById( 'sphere-vs' ).textContent
-          fragmentShader: document.getElementById( 'sphere-fs' ).textContent
-          side: THREE.BackSide
-
-        sphereMaterial = new THREE.ShaderMaterial params2
-
-        sphere = new THREE.Mesh( new THREE.IcosahedronGeometry( 100, 1 ), sphereMaterial )
-        window.app.scene.add sphere
-
         m
+
 
 
       _materialFactory : (geometry, opts) ->
@@ -290,7 +270,7 @@ class module.exports
       after 3000, ->
         #console.log "atgc-bundle-crystal.update->after: putting crystal into player's hands"
         # this should a stateless, async message of action..
-        app.assets['atgc-core-player']?.getBound 'atgc-bundle-crystal'
+        #app.assets['atgc-core-player']?.getBound 'atgc-bundle-crystal'
 
   ###
   Update the orientation of crystals?
