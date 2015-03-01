@@ -83,19 +83,59 @@ class module.exports
         g.computeFaceNormals()
         g.computeVertexNormals()
         g.computeMorphNormals()
-        #g.computeTangents()
+        g.computeTangents()
         g.computeBoundingBox()
         g.computeBoundingSphere()
-
 
         g
 
       materialFactory : (geometry, opts) ->
-        m = new THREE.MeshPhongMaterial
-          color: 0x000000
-          ambient: 0x000000 # should be same that color, or else..
-          specular: 0x050505
-          shininess: 150
+
+        m = new THREE.ShaderMaterial
+          uniforms:
+            tNormal:
+              type: 't'
+              value: THREE.ImageUtils.loadTexture 'textures/normal-maps/fly-eye.jpg'
+            tMatCap:
+              type: 't'
+              value: THREE.ImageUtils.loadTexture 'textures/material-maps/atgc_chrome.jpg'
+            time:
+              type: 'f'
+              value: 0
+            bump:
+              type: 'f'
+              value: 0
+            noise:
+              type: 'f'
+              value: .04
+            repeat:
+              type: 'v2'
+              value: new THREE.Vector2 1, 1
+            useNormal:
+              type: 'f'
+              value: 0
+            useRim:
+              type: 'f'
+              value: 0
+            rimPower:
+              type: 'f'
+              value: 2
+            useScreen:
+              type: 'f'
+              value: 0
+            normalScale:
+              type: 'f'
+              value: .5
+            normalRepeat:
+              type: 'f'
+              value: 1
+          vertexShader: document.getElementById( 'sem-vs' ).textContent
+          fragmentShader: document.getElementById( 'sem-fs' ).textContent
+          shading: THREE.SmoothShading
+
+        m.uniforms.tMatCap.value.wrapS = m.uniforms.tMatCap.value.wrapT = THREE.ClampToEdgeWrapping
+        m.uniforms.tNormal.value.wrapS = m.uniforms.tNormal.value.wrapT = THREE.RepeatWrapping
+
         m
 
       meshFactory: (geometry, material, opts)  ->
@@ -196,9 +236,19 @@ class module.exports
     if init
       @pool.connectTo @app.scene
       after 3000, ->
+
+        ###
+        subject = new Rx.Subject()
+
+        subscription = subject.subscribe (data) ->
+          console.log('data: ' + data)
+
+        subject.onNext('foo');
+        ###
+
         console.log "atgc-bundle-metablob.update->after: putting metablob into player's hands"
         # this should a stateless, async message of action..
-        #app.assets['atgc-core-player']?.getBound 'atgc-bundle-metablob'
+        app.assets['atgc-core-player']?.getBound 'atgc-bundle-metablob'
 
   ###
   Update the orientation of metablobs?
