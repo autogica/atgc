@@ -2,7 +2,12 @@
 
 ## Overview
 
-Half-stealth mode, no information about this project for now :)
+A game project
+
+## Dependencies
+
+- Gunfire
+- InfluxDB (with a local db named: 'atgc', with username 'atgc' and password 'atgc')
 
 ## Developers
 
