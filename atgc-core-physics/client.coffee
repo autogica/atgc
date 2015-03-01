@@ -71,13 +71,22 @@ class module.exports
       # stats
       @elem = document.createElement 'div'
 
-      @elem.style.position = 'absolute'
-      @elem.style.top      = '10px'
-      @elem.style.left     = '10px'
-      @elem.style.width    = '400px'
-      @elem.style.height   = '400px'
-      @elem.style.fontSize = '11px'
-      #@elem.style.textAlign = 'left'
+      @elem.style.position      = 'absolute'
+      @elem.style.top           = '0px'
+      @elem.style.left          = '0px'
+
+      @elem.style.width         = '132px'
+      @elem.style.padding       = '15px'
+
+      @elem.style.background    = 'rgba(0, 0, 0, 0.17)'
+
+      @elem.style.color         = 'rgb(255, 255, 255)'
+      @elem.style.fontFamily    = 'Helvetica Neue'
+      @elem.style.fontSize      = '11px'
+      @elem.style.fontWeight    = '100'
+      @elem.style.letterSpacing = '2px'
+
+      @elem.style.borderBottomRightRadius = "20px"
 
       document.getElementsByTagName('body')[0].appendChild @elem
 
