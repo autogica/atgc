@@ -144,6 +144,7 @@ class module.exports
         m
 
       objectDestroyer: (obj) ->
+        app.assets['atgc-core-metrics'].dec 'atgc', 'metablobs.instances'
         obj.tween.stop()
         delete obj.teleportInFrontOf
         delete obj.run
@@ -156,6 +157,7 @@ class module.exports
         # warhead
 
       objectFactory: (obj, opts) ->
+        app.assets['atgc-core-metrics'].inc 'atgc', 'metablobs.instances'
         #console.log "atgc-bundle-metablob: objectFactory:", obj, opts
 
         obj.speed = opts.speed
@@ -302,6 +304,8 @@ class module.exports
     price: validOpts.nbInstances * unitPrice
     accept: (callback) =>
       console.log "atgc-bundle-metablob.order->accept: accepted order"
+      app.assets['atgc-core-metrics'].inc 'atgc', 'energy.spent', validOpts.nbInstances * unitPrice
+
       # TODO execute transaction here
       # if the client budget gets negative, we notify the bank which will take
       # strict actions like terminate the player / entity
