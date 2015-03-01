@@ -76,6 +76,7 @@ class module.exports
         m
 
       objectDestroyer: (obj) ->
+        app.assets['atgc-core-metrics'].dec 'atgc', 'javelots.instances'
         obj.tween.stop()
         delete obj.teleportInFrontOf
         delete obj.run
@@ -89,7 +90,7 @@ class module.exports
 
       objectFactory: (obj, opts) ->
         #console.log "atgc-bundle-javelot: objectFactory:", obj, opts
-
+        app.assets['atgc-core-metrics'].inc 'atgc', 'javelots.instances'
         obj.speed = opts.speed
         obj.lifetime = opts.lifetime
         obj.payload = opts.payload
@@ -168,6 +169,7 @@ class module.exports
     if init
       @pool.connectTo @app.scene
       after 3000, ->
+
         #console.log "atgc-bundle-javelot.update->after: putting javelot into player's hands"
         # this should a stateless, async message of action..
         #app.assets['atgc-core-player']?.getBound 'atgc-bundle-javelot'
@@ -224,6 +226,8 @@ class module.exports
     price: validOpts.nbInstances * unitPrice
     accept: (callback) =>
       console.log "atgc-bundle-javelot.order->accept: accepted order"
+      app.assets['atgc-core-metrics'].inc 'atgc', 'energy.spent', validOpts.nbInstances * unitPrice
+
       # TODO execute transaction here
       # if the client budget gets negative, we notify the bank which will take
       # strict actions like terminate the player / entity
