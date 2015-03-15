@@ -39,7 +39,7 @@
       "__OLD_fogColorHSL": [ 0.48, 1, 0.2 ],
 
       "fogNear": 1,
-      "fogFar": 10000,
+      "fogFar": 2000,
       "temperature": 23,
       "humidity": 0.50,
       "wind": 0,
