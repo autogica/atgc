@@ -59,8 +59,7 @@ class module.exports
 
       size: 1000
 
-      geometryFactory: (opts) ->
-
+      geometryFactory: (opts) -> (cb) ->
         noise = new ImprovedNoise()
 
         # geometry is basically a cube, but it could be a sphere too
@@ -87,9 +86,9 @@ class module.exports
         g.computeBoundingBox()
         g.computeBoundingSphere()
 
-        g
+        cb g
 
-      materialFactory : (geometry, opts) ->
+      materialFactory : (geometry, opts) -> (cb) ->
 
         m = new THREE.ShaderMaterial
           uniforms:
@@ -136,12 +135,12 @@ class module.exports
         m.uniforms.tMatCap.value.wrapS = m.uniforms.tMatCap.value.wrapT = THREE.ClampToEdgeWrapping
         m.uniforms.tNormal.value.wrapS = m.uniforms.tNormal.value.wrapT = THREE.RepeatWrapping
 
-        m
+        cb m
 
-      meshFactory: (geometry, material, opts)  ->
+      meshFactory: (geometry, material, opts) -> (cb) ->
         m = new THREE.Mesh geometry, material
         m.scale.x = m.scale.y = m.scale.z = opts.scale
-        m
+        cb m
 
       objectDestroyer: (obj) ->
         app.assets['atgc-core-metrics'].dec 'atgc', 'metablobs.instances'
@@ -250,7 +249,7 @@ class module.exports
 
         console.log "atgc-bundle-metablob.update->after: putting metablob into player's hands"
         # this should a stateless, async message of action..
-        app.assets['atgc-core-player']?.getBound 'atgc-bundle-metablob'
+        #app.assets['atgc-core-player']?.getBound 'atgc-bundle-metablob'
 
   ###
   Update the orientation of metablobs?
