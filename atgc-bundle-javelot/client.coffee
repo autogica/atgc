@@ -66,14 +66,16 @@ class module.exports
 
       size: 1000
 
-      geometryFactory: (opts) ->
-        new THREE.CylinderGeometry(opts.radiusTop, opts.radiusBottom, opts.height, opts.segmentsRadius)
+      geometryFactory: (opts) -> (cb) ->
+        cb new THREE.CylinderGeometry(opts.radiusTop, opts.radiusBottom, opts.height, opts.segmentsRadius)
 
-      # materialFactory : (geometry, opts) -> new THREE.MeshNormalMaterial()
-      meshFactory: (geometry, material, opts)  ->
+      materialFactory : (geometry, opts) -> (cb) ->
+        cb new THREE.MeshNormalMaterial()
+        
+      meshFactory: (geometry, material, opts) -> (cb) ->
         m = new THREE.Mesh geometry, material
         m.scale.x = m.scale.y = m.scale.z = opts.scale
-        m
+        cb m
 
       objectDestroyer: (obj) ->
         app.assets['atgc-core-metrics'].dec 'atgc', 'javelots.instances'
