@@ -59,7 +59,7 @@ class module.exports
 
       size: 1000
 
-      geometryFactory: (opts) ->
+      geometryFactory: (opts) -> (cb) ->
 
         # Pyrite and Galera has interesting "shattered cube" shapes, well suited to buildings
         # and other giant stuff
@@ -106,9 +106,9 @@ class module.exports
         g.computeBoundingSphere()
 
 
-        g
+        cb g
 
-      materialFactory : (geometry, opts) ->
+      materialFactory : (geometry, opts) -> (cb) ->
 
         m = new THREE.ShaderMaterial
           uniforms:
@@ -155,11 +155,11 @@ class module.exports
         m.uniforms.tMatCap.value.wrapS = m.uniforms.tMatCap.value.wrapT = THREE.ClampToEdgeWrapping
         m.uniforms.tNormal.value.wrapS = m.uniforms.tNormal.value.wrapT = THREE.RepeatWrapping
 
-        m
+        cb m
 
 
 
-      _materialFactory : (geometry, opts) ->
+      _materialFactory : (geometry, opts) -> (cb) ->
 
         m = new THREE.MeshPhongMaterial
           color: 0xffffff
@@ -167,13 +167,13 @@ class module.exports
           specular: 0x050505
           shininess: 150
           shading: THREE.FlatShading
-        m
+        cb m
 
 
-      meshFactory: (geometry, material, opts)  ->
+      meshFactory: (geometry, material, opts) -> (cb) ->
         m = new THREE.Mesh geometry, material
         m.scale.x = m.scale.y = m.scale.z = opts.scale
-        m
+        cb m
 
       objectDestroyer: (obj) ->
         app.assets['atgc-core-metrics'].dec 'atgc', 'crystals.instances'
